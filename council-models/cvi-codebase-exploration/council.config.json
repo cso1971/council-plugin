@@ -1,0 +1,22 @@
+{
+  "maxRounds": 2,
+  "teammateMode": "tmux",
+  "model": "sonnet",
+  "requirePlanApproval": true,
+  "agents": {
+    "coordinator": {
+      "promptFile": "agents/coordinator.md"
+    },
+    "teammates": [
+      { "name": "C Topology Mapper", "promptFile": "agents/c-topology-mapper.md" },
+      { "name": "Instrument Lock-in Analyst", "promptFile": "agents/instrument-lockin-analyst.md" },
+      { "name": "Code Quality Archaeologist", "promptFile": "agents/code-quality-archaeologist.md" },
+      { "name": "Interface Surface Analyst", "promptFile": "agents/interface-surface-analyst.md" },
+      { "name": "Test Observability Auditor", "promptFile": "agents/test-observability-auditor.md" },
+      { "name": "Hardware Abstraction Analyst", "promptFile": "agents/hardware-abstraction-analyst.md" },
+      { "name": "Devil's Advocate", "promptFile": "agents/devils-advocate.md" }
+    ]
+  },
+  "logDir": "council-log",
+  "additionalDirs": ["../../../../"]
+}

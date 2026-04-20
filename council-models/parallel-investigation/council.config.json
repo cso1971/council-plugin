@@ -1,0 +1,26 @@
+{
+  "maxRounds": 4,
+  "teammateMode": "in-process",
+  "model": "haiku",
+  "requirePlanApproval": true,
+  "agents": {
+    "coordinator": {
+      "promptFile": "agents/coordinator.md"
+    },
+    "teammates": [
+      {
+        "name": "Investigator SAML",
+        "promptFile": "agents/investigator-saml.md"
+      },
+      {
+        "name": "Investigator YARP",
+        "promptFile": "agents/investigator-yarp.md"
+      },
+      {
+        "name": "Investigator Data",
+        "promptFile": "agents/investigator-data.md"
+      }
+    ]
+  },
+  "logDir": "council-log"
+}

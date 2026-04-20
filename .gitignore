@@ -1,0 +1,45 @@
+# Dependencies (root + subpackages e.g. mcp/telegram-ask)
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# MCP config with secrets (see README)
+.mcp.json
+
+# Claude Code local overrides (do not commit)
+**/.claude/settings.local.json
+
+# Log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# User project state when using this folder as --plugin-dir
+/council/
+/Sessions/
+
+# Any folder named council-log (and everything inside)
+council-log/
+
+# Editor / swap files
+.idea/
+*.swp
+*.swo
+*~
+
+# Test / coverage (if you add instrumented tests)
+coverage/
+.nyc_output/
+
+tmp/
+temp/

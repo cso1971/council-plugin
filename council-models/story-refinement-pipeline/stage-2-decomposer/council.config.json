@@ -1,0 +1,23 @@
+{
+  "maxRounds": 2,
+  "teammateMode": "in-process",
+  "model": "sonnet",
+  "requirePlanApproval": true,
+  "agents": {
+    "coordinator": {
+      "promptFile": "agents/prompt-engineer.md"
+    },
+    "teammates": [
+      {
+        "name": "Dependency Mapper",
+        "promptFile": "agents/dependency-mapper.md"
+      },
+      {
+        "name": "Test Verifier",
+        "promptFile": "agents/test-verifier.md"
+      }
+    ]
+  },
+  "logDir": "council-log",
+  "additionalDirs": ["../../"]
+}

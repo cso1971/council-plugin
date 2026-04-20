@@ -1,0 +1,9 @@
+{
+  "name": "council-skill",
+  "description": "Scaffold and run multi-agent business councils via Claude Code Agent Teams — wizard, Telegram HITL, scaffold, launch, resume.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Council Skill contributors"
+  },
+  "keywords": ["council", "agent-teams", "deliberation", "hitl", "telegram", "business"]
+}

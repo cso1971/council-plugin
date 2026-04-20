@@ -1,0 +1,12 @@
+{
+  "name": "council-skill",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate:references": "node scripts/validate-references.mjs",
+    "test:telegram-mcp-dry": "node scripts/telegram-mcp-dry-smoke.mjs"
+  },
+  "devDependencies": {
+    "yaml": "^2.7.0"
+  }
+}
