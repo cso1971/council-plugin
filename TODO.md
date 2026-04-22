@@ -219,6 +219,7 @@ graph TD
 - [ ] Agent files generated at `.claude/agents/` not `council/agents/`
 - [ ] Works for both business and tech scenarios (not "non-technical" only)
 - [ ] Cowork-first language (inline HITL as default)
+- [ ] Handles failure modes from SPEC.md section 12: empty `Docs/`, Telegram setup failure, skill-creator failure (retry + archetype fallback)
 
 **Depends on**: T02, T03, T05, T07, T08
 
@@ -253,6 +254,7 @@ graph TD
 - [ ] All agent paths use `.claude/agents/`
 - [ ] Precondition checks reference `.claude/agents/coordinator.md` and `.claude/agents/<slug>.md`
 - [ ] Kickoff prompt structure references `.claude/agents/` paths
+- [ ] Handles launch-time failure modes from SPEC.md section 12: missing scaffold files (explicit error), Agent Teams unavailability (surface clear error + guidance)
 
 **Depends on**: T09
 
@@ -270,6 +272,7 @@ graph TD
 - [ ] Agent file references use `.claude/agents/` if mentioned
 - [ ] Session detection logic matches the output file names from all patterns
 - [ ] No stale references to old paths
+- [ ] Handles resume-time failure modes from SPEC.md section 12: partial/incomplete round files (detect, offer discard or resume)
 
 **Depends on**: T09
 
@@ -369,6 +372,28 @@ graph TD
 **Depends on**: none
 
 **Status**: DONE (this file)
+
+---
+
+### T19: Unify `2026-04-15-council-skill-design.md` into SPEC.md
+
+**Description**: Merge unique, still-relevant content from the pre-unification design doc into SPEC.md, then delete the design doc. Content merged: target users (section 1.1), non-goals (section 1.2), Agent Teams constraints (section 1.3), error handling table (section 12), roadmap (section 13). Outdated content (8-phase wizard, old paths, council-skill naming) intentionally not merged.
+
+**Files**:
+- `SPEC.md` -- sections 1.1-1.3, 12, 13 added
+- `docs/superpowers/specs/2026-04-15-council-skill-design.md` -- deleted
+- `docs/superpowers/` -- removed (was empty apart from this file)
+- `TODO.md` -- this task added; T09, T11, T12 updated with error handling references
+
+**Acceptance criteria**:
+- [x] `grep -r "2026-04-15-council-skill-design" .` returns no hits
+- [x] SPEC.md has sections 1.1, 1.2, 1.3, 12, 13
+- [x] Existing SPEC.md section numbers 2-11 unchanged (TODO.md cross-references intact)
+- [x] `docs/superpowers/` does not exist
+
+**Depends on**: T17
+
+**Status**: DONE
 
 ---
 

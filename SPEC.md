@@ -16,6 +16,36 @@ Council Plugin is a **Claude Code / Cowork plugin** that lets any user -- busine
 
 **Runtime**: Agent Teams. The plugin generates files; Agent Teams runs them. No custom runtime.
 
+### 1.1 Target users
+
+- **Business users**: product managers, legal operations professionals, strategy consultants, founders -- people who need multiple expert perspectives on a decision without writing agent configs.
+- **Technical users**: engineers, architects, QA leads, security engineers -- people running structured technical reviews, design critiques, or multi-perspective analyses in a codebase context.
+
+Both groups share the same plugin. The wizard detects the scenario domain (business / tech / mixed) and adapts persona proposals, domain context, and output templates accordingly.
+
+Prerequisite: access to Claude Cowork (desktop/web) or Claude Code CLI, and a project folder with relevant documents or code.
+
+### 1.2 Non-goals (first release)
+
+- Custom pattern authoring by end users (templates are predefined).
+- Patterns not natively supported by Agent Teams (⚠️ workaround or ❌ unsupported).
+- Cross-session semantic memory or RAG over documents (agents read files on demand per session).
+- Multi-model cost optimization (Agent Teams uses a single Opus model per session).
+- Scheduling or unattended council execution (each session is interactive).
+- Multi-language output (English only in first release).
+- Cross-council shared knowledge bases.
+
+### 1.3 Agent Teams constraints
+
+The plugin is designed to work **with** these constraints, not around them:
+
+- No nested teams -- only the lead (coordinator) agent orchestrates; teammates cannot spawn sub-teams.
+- No session resumption at the platform level -- teams are ephemeral; all state lives in the project filesystem.
+- Teammates have reduced tools -- no `AgentTool`, `TeamCreate/Delete`, `Cron*` available to teammates.
+- Single model across all agents (Opus).
+- One team per session -- a project runs one council at a time.
+- Native Plan Approval and Delegate Mode are available and used for HITL without custom tooling.
+
 ---
 
 ## 2. Architecture
@@ -704,3 +734,31 @@ The critical content from PROMPT.md (three-layer composition model, template var
 - `product-analyst` (tech, category: tech): PM as analyst -- user stories, acceptance criteria, INVEST principles, requirements decomposition
 
 The category field (`business` vs `tech`) and the distinct domain keywords disambiguate them. Both can coexist in a mixed council.
+
+---
+
+## 12. Error Handling and Fallbacks
+
+| Failure mode | Handling |
+|---|---|
+| `Docs/` missing or empty | Warn, allow user to proceed with scenario-only context |
+| Telegram setup declined or failed | Fall back to `hitl_mode: inline` |
+| Telegram `ask_operator` timeout at runtime | Auto-continue to next round; log a note in `round-N.md` |
+| Skill-creator invocation fails | Retry with a more explicit brief; on second failure, fall back to copying the nearest archetype persona with a note "manual refinement recommended" |
+| Required scaffold file missing at launch | Stop with an explicit error referencing the wizard |
+| Session crash mid-round (Claude Code closed) | Partial round file may remain; `council-resume` detects incomplete rounds and offers discard or resume |
+| Agent Teams tool unavailability (e.g., `TeamCreate`) | Surface a clear error: wrong Claude Code mode or plan; suggest the user enable Agent Teams |
+
+---
+
+## 13. Out of Scope / Roadmap
+
+Items explicitly deferred from the first release:
+
+- **Custom pattern authoring** -- users defining their own topology files beyond the 7 built-in patterns.
+- **Additional native patterns** -- expanding beyond the 7 Agent Teams-supported patterns (⚠️ workaround and ❌ unsupported patterns from `agent-interaction-patterns.md`).
+- **Multi-language output** -- deliberation and output templates in languages other than English.
+- **Persistent semantic memory** -- RAG or vector search over `Docs/` across council sessions.
+- **Scheduled / unattended councils** -- running a council without an interactive operator present.
+- **Cross-council shared knowledge** -- a shared knowledge base spanning multiple council projects.
+- **npm-published MCP companion** -- the `telegram-ask` MCP server is embedded as a minimal Node script in v1; a published npm package is a follow-up once the API stabilizes.
