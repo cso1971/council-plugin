@@ -70,7 +70,7 @@ A Claude Code **plugin** named `council-skill` containing:
 1. A primary orchestrator skill (`council-wizard`) that runs the interview flow
 2. Four secondary skills (`council-telegram-setup`, `council-scaffold`,
    `council-launch`, `council-resume`) callable independently
-3. Three reference libraries under `references/`: patterns, role-archetypes,
+3. Three reference libraries under `references/`: patterns, personas,
    output-templates
 4. No custom runtime — the plugin generates prompts and files that Claude Code
    Agent Teams executes natively
@@ -104,7 +104,7 @@ council-skill/                          (this repo — installed as plugin)
     │   ├── plan-execute-verify.md
     │   ├── ensemble-voting.md
     │   └── builder-validator.md
-    ├── role-archetypes/                10-12 reusable business roles
+    ├── personas/                       10-12 reusable business roles
     │   ├── market-analyst.md
     │   ├── legal-advisor.md
     │   ├── financial-controller.md
@@ -180,7 +180,7 @@ Sections:
 - **Output mapping** — which output-template applies and how round contents
   flow into template fields
 
-### Role archetype file (`references/role-archetypes/<role>.md`)
+### Role archetype file (`references/personas/<role>.md`)
 
 Frontmatter fields: `id`, `name`, `domains`, `fits_patterns`.
 

@@ -50,12 +50,14 @@ graph TD
 - All files that reference `role-archetypes` or `references/role-archetypes`
 
 **Acceptance criteria**:
-- [ ] `references/personas/` exists with all 12 business persona files
-- [ ] `references/role-archetypes/` no longer exists
-- [ ] `grep -r "role-archetypes" --include="*.md" --include="*.mjs" --include="*.json"` returns 0 hits in non-archived files
-- [ ] `git mv` used to preserve history
+- [x] `references/personas/` exists with all 12 business persona files
+- [x] `references/role-archetypes/` no longer exists
+- [x] `grep -r "role-archetypes" --include="*.md" --include="*.mjs" --include="*.json"` returns 0 hits in non-archived files
+- [x] `git mv` used to preserve history
 
 **Depends on**: none
+
+**Status**: DONE
 
 ---
 
@@ -68,14 +70,16 @@ graph TD
 - Target: `references/personas/`
 
 **Acceptance criteria**:
-- [ ] 6 tech persona files exist in `references/personas/`
-- [ ] `references/personas/_custom-template.md` exists
-- [ ] Each tech persona has valid YAML frontmatter with all required fields: `id`, `name`, `category: tech`, `domains`, `fits_patterns`, `domain-context-sections`
-- [ ] All 10 mandatory sections present in each persona (see SPEC.md section 3.1)
-- [ ] Domain-specific content (e.g., distributed-playground references) stripped from persona files
+- [x] 6 tech persona files exist in `references/personas/`
+- [x] `references/personas/_custom-template.md` exists
+- [x] Each tech persona has valid YAML frontmatter with all required fields: `id`, `name`, `category: tech`, `domains`, `fits_patterns`, `domain-context-sections`
+- [x] All 10 mandatory sections present in each persona (see SPEC.md section 3.1)
+- [x] Domain-specific content (e.g., distributed-playground references) stripped from persona files
 - [ ] `validate-references` passes after T14
 
 **Depends on**: T01
+
+**Status**: DONE (pending T14 for validate-references)
 
 ---
 

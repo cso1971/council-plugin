@@ -23,7 +23,7 @@ You generate **project-level** artifacts so **Claude Code Agent Teams** can run 
 
 ### Archetype path
 
-1. Open `references/role-archetypes/<archetype_id>.md`.
+1. Open `references/personas/<archetype_id>.md`.
 2. Extract the **Baseline skill (SKILL.md template)** fenced block.
 3. Replace `{{...}}` slots using scenario + `customization` map + sensible defaults.
 4. Write `.claude/skills/<slug>/SKILL.md`.
@@ -38,7 +38,7 @@ You generate **project-level** artifacts so **Claude Code Agent Teams** can run 
 
 2. Invoke skill-creator per product norms; land output at `.claude/skills/<slug>/SKILL.md`.
 
-3. **Failure handling** (per design spec): if skill-creator fails twice, copy the **closest archetype** baseline from `references/role-archetypes/pm-facilitator.md` (or nearest fit), prepend a markdown note: *"Manual refinement recommended (skill-creator failed)."*
+3. **Failure handling** (per design spec): if skill-creator fails twice, copy the **closest archetype** baseline from `references/personas/pm-facilitator.md` (or nearest fit), prepend a markdown note: *"Manual refinement recommended (skill-creator failed)."*
 
 ---
 

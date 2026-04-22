@@ -10,7 +10,7 @@ You run the **end-to-end interview** for a **non-technical** business user. Defa
 **Reference library** (read-only, from this plugin):
 
 - Patterns: `references/patterns/*.md`
-- Archetypes: `references/role-archetypes/*.md`
+- Personas: `references/personas/*.md`
 - Output templates: `references/output-templates/*.md`
 - Recommender: `references/recommender/questions.md`
 

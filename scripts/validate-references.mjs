@@ -1,5 +1,5 @@
 /**
- * Build-time validation for references/patterns and references/role-archetypes.
+ * Build-time validation for references/patterns and references/personas.
  * Run: npm run validate:references
  */
 import fs from "node:fs";
@@ -96,7 +96,7 @@ function validatePatterns() {
 }
 
 function validateArchetypes() {
-  const dir = path.join(root, "references", "role-archetypes");
+  const dir = path.join(root, "references", "personas");
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
   if (files.length < 10 || files.length > 15) {
     throw new Error(`Expected 10–12 archetype files (flex 10–15), found ${files.length}`);
