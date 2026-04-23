@@ -212,14 +212,14 @@ graph TD
 - [ ] Phase 1: scenario intake + context discovery (business docs OR codebase scan)
 - [ ] Phase 2: pattern + protocol selection (hybrid recommender)
 - [ ] Phase 3: agent composition (library match + dynamic generation)
-- [ ] Phase 4: HITL config (inline default, Telegram optional)
+- [ ] Phase 4: HITL confirmation (inline only, no configuration needed)
 - [ ] Phase 5: generate all artifacts + launch offer (scaffold logic embedded)
 - [ ] References `references/personas/`, `references/protocols/`, `references/templates/`
 - [ ] No reference to `council-scaffold` as a separate skill
 - [ ] Agent files generated at `.claude/agents/` not `council/agents/`
 - [ ] Works for both business and tech scenarios (not "non-technical" only)
 - [ ] Cowork-first language (inline HITL as default)
-- [ ] Handles failure modes from SPEC.md section 12: empty `Docs/`, Telegram setup failure, skill-creator failure (retry + archetype fallback)
+- [ ] Handles failure modes from SPEC.md section 12: empty `Docs/`, skill-creator failure (retry + archetype fallback)
 
 **Depends on**: T02, T03, T05, T07, T08
 
@@ -344,7 +344,7 @@ graph TD
 - [ ] No mention of "non-technical" as exclusive audience
 - [ ] Mentions Cowork as primary target
 - [ ] Layout table matches SPEC.md section 2.1 (personas, protocols, templates directories)
-- [ ] Skills table shows 4 skills (wizard, launch, resume, telegram-setup)
+- [ ] Skills table shows 3 skills (wizard, launch, resume)
 - [ ] Agent paths use `.claude/agents/` not `council/agents/`
 - [ ] Plugin name is `council-plugin` not `council-skill`
 - [ ] Quick-start for both Cowork and CLI
@@ -405,7 +405,6 @@ graph TD
 
 **Acceptance criteria**:
 - [ ] `npm run validate:references` passes
-- [ ] `npm run test:telegram-mcp-dry` passes
 - [ ] `grep -r "role-archetypes" --include="*.md" --include="*.mjs" --include="*.json"` returns only hits in `docs/archived/`
 - [ ] `grep -r "council-scaffold" --include="*.md"` returns only hits in `docs/archived/`, SPEC.md, TODO.md, and UNIFICATION-PLAN.md
 - [ ] `grep -r "council/agents/" --include="*.md"` returns only hits in `docs/archived/` and `council-models/`

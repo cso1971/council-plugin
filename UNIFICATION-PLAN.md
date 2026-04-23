@@ -9,7 +9,7 @@
 
 This repo contains two overlapping systems that scaffold "Councils of Agents" for Claude Code Agent Teams:
 
-- **council-plugin** (the main plugin) -- a 5-skill suite targeting non-technical business users, with 7 orchestration patterns, 12 business role archetypes, output templates, Telegram HITL, and a full session lifecycle (launch/resume).
+- **council-plugin** (the main plugin) -- a 5-skill suite targeting non-technical business users, with 7 orchestration patterns, 12 business role archetypes, output templates, inline HITL, and a full session lifecycle (launch/resume).
 - **council-builder** (under `council-builder/`) -- a standalone `.claude` skill targeting software development teams, with 6 tech personas, a deliberative-voting protocol, and an elegant three-layer composition model (Protocol + Persona + Domain Context).
 
 Both generate files that Agent Teams runs natively. Neither implements a custom runtime. They share the same fundamental architecture -- scaffold artifacts, let Agent Teams orchestrate -- but diverge in audience, persona libraries, wizard flow, protocol handling, artifact paths, and session management.
@@ -24,7 +24,7 @@ Both generate files that Agent Teams runs natively. Neither implements a custom 
 |-----------|--------------------------|---------------------------|
 | **Target audience** | Non-technical business users | Software development teams |
 | **Entry point** | `skills/council-wizard/SKILL.md` (8-phase) | `council-builder/.claude/skills/council-builder/SKILL.md` (6-phase) |
-| **Skills** | 5: wizard, launch, resume, scaffold, telegram-setup | 1 monolithic wizard |
+| **Skills** | 4: wizard, launch, resume, scaffold | 1 monolithic wizard |
 | **Persona library** | 12 business archetypes in `references/role-archetypes/` | 6 tech personas in `persona-library/` |
 | **Persona format** | YAML frontmatter + role description + baseline SKILL.md template + typical questions + customization slots | Identity + competencies + behavior rules + care/defer + vote guidelines table + quality checklist + `domain-context-sections` declaration |
 | **Pattern library** | 7 patterns in `references/patterns/` with coordinator/teammate prompt templates, HITL checkpoints, recommender signals | None (pattern logic is implicit in protocol) |
@@ -33,7 +33,7 @@ Both generate files that Agent Teams runs natively. Neither implements a custom 
 | **Output templates** | 6 templates + brief variants in `references/output-templates/` | Output formats defined inside protocol file |
 | **Domain context** | `Docs/INDEX.md` (auto-indexed business documents) | Rich labeled sections with per-persona filtering via `domain-context-sections` |
 | **Generation templates** | None (prompt templates live inside pattern files) | `.hbs` template files: `coordinator.md.hbs`, `persona.md.hbs`, `claude-md-protocol-section.md.hbs` |
-| **HITL** | Telegram MCP (`mcp/telegram-ask/`) + inline chat fallback | None |
+| **HITL** | Inline chat | None |
 | **Session management** | Full lifecycle: scaffold -> launch -> run -> resume via `Sessions/<slug>/` | None |
 | **Agent file location** | `council/agents/*.md` (custom path) | `.claude/agents/*.md` (Agent Teams native) |
 | **Skill generation** | `.claude/skills/<slug>/SKILL.md` per agent (from archetype baselines) | None (all knowledge embedded in agent files) |
@@ -48,7 +48,6 @@ Both generate files that Agent Teams runs natively. Neither implements a custom 
 - Complete session lifecycle (launch, resume, state detection)
 - Rich pattern library with recommender signals and HITL checkpoint types
 - Output templates (professional, stakeholder-ready)
-- Telegram HITL integration
 - Plugin manifest structure (`.claude-plugin/plugin.json`)
 - Validation scripts
 - Business persona breadth (12 archetypes covering market, legal, finance, compliance, brand, HR, risk, ops, customer, data, PM, moderator)
@@ -119,7 +118,6 @@ council-plugin/                              (this repo, installed as plugin)
     council-wizard/SKILL.md                  unified 5-phase wizard
     council-launch/SKILL.md                  compose Agent Teams kickoff
     council-resume/SKILL.md                  re-open prior sessions
-    council-telegram-setup/SKILL.md          Telegram onboarding
   references/
     patterns/                                7 pattern files (topology + prompts)
       hub-and-spoke.md
@@ -162,8 +160,6 @@ council-plugin/                              (this repo, installed as plugin)
     templates/                               NEW -- generation skeletons
       coordinator.md.tmpl                    coordinator agent template
       teammate.md.tmpl                       persona agent template
-  mcp/
-    telegram-ask/                            MCP server (unchanged)
   scripts/
     validate-references.mjs                  extended for new directories
   council-models/                            inert examples (reference only)
@@ -187,7 +183,6 @@ Key changes:
       <role-slug>.md                         one per teammate
     skills/                                  OPTIONAL per-agent domain skills
       council-<role-slug>/SKILL.md           only when deep domain grounding needed
-  .mcp.json                                  git-ignored (Telegram config)
   council/
     config.md                                council metadata (YAML frontmatter)
     domain-context.md                        scenario/project knowledge
@@ -198,7 +193,6 @@ Key changes:
     round-1.md ... round-N.md               round logs
     <output>.md                             final output (decision|findings|...)
     escalation.md                           if no consensus after max rounds
-    telegram-log.md                         if Telegram HITL used
 ```
 
 vs. current System A layout -- the key change is `council/agents/` -> `.claude/agents/`.
@@ -385,26 +379,20 @@ Combines: System A Phase 5 (agent selection within wizard) + System B Phase 3 (s
 4. **Reuse check**: scan `.claude/agents/` for existing agent files from prior councils. Offer to reuse with modifications.
 5. For each agent: ask if they need a domain-specific skill (only if `.claude/skills/` has existing skills beyond council ones, or if the persona has a baseline skill template).
 
-### Phase 4 -- HITL Configuration
+### Phase 4 -- HITL Confirmation
 
-From: System A Phase 3 (Telegram check).
-
-1. Check for existing `.mcp.json` with `telegram-ask` registered.
-2. Offer: Telegram setup (delegates to `council-telegram-setup`) or inline fallback.
-3. Record `hitl_mode` in config.
-4. Decline / fail -> `hitl_mode: inline` (first-class, not degraded).
+Inline HITL is the only mode. Confirm to the user that checkpoints will appear inline during the council run and that Plan Approval (native Agent Teams) is always available.
 
 ### Phase 5 -- Generate and Launch Offer
 
 Combines: System A Phase 6-7 (scaffold + launch offer) + System B Phase 5-6 (generate + summary). Absorbs the separate `council-scaffold` skill.
 
 Generate all artifacts:
-- `council/config.md` (YAML frontmatter: pattern, topic, max_rounds, hitl_mode, output_style, agents list, protocol, setup_date)
+- `council/config.md` (YAML frontmatter: pattern, topic, max_rounds, output_style, agents list, protocol, setup_date)
 - `council/domain-context.md` (if not already present from Phase 1)
 - `.claude/agents/coordinator.md` (assembled from pattern template + protocol + teammates table)
 - `.claude/agents/<slug>.md` per teammate (assembled from three-layer composition: protocol + persona + domain context)
 - `Docs/INDEX.md` (if `Docs/` has content)
-- `.gitignore` update (ensure `.mcp.json` is ignored)
 - `Sessions/` directory
 - Optional: `.claude/skills/council-<slug>/SKILL.md` per agent that declared a domain skill
 
@@ -430,7 +418,7 @@ For a clear request like *"Make me a council to analyze this public tender so I 
 >
 > **Pattern**: builder-validator (Legal Advisor + Financial Controller draft; Market Analyst + Compliance Officer validate)
 > **Protocol**: deliberative-voting (default)
-> **HITL**: inline (no Telegram detected)
+> **HITL**: inline
 >
 > Want me to adjust the team, or should I generate the council?
 
@@ -463,7 +451,7 @@ No custom runtime. Agent Teams orchestrates:
 - Coordinator spawns teammates (reads `.claude/agents/*.md`)
 - Teammates respond using protocol format
 - Coordinator writes `round-N.md` after each round
-- HITL checkpoints per pattern type (Telegram or inline)
+- Inline HITL checkpoints per pattern type
 - Consensus check -> final output, or escalation after max rounds
 
 ### Resume (`council-resume` skill)
@@ -479,13 +467,12 @@ Unchanged from System A:
 
 ## 9. HITL Integration
 
-Three mechanisms, unchanged from System A:
+Two mechanisms:
 
 | Mechanism | Source | When |
 |-----------|--------|------|
-| **Telegram** (`hitl_mode: telegram`) | `mcp/telegram-ask/` MCP server | `ask_operator(message)` sends to Telegram, long-polls for reply (600s timeout). TIMEOUT auto-continues. |
-| **Inline** (`hitl_mode: inline`) | Native Claude Code chat | Coordinator asks directly in the chat session. Same message formats and reply parsing. |
-| **Plan Approval** | Agent Teams native | Teammate actions require coordinator approval. Always available regardless of `hitl_mode`. |
+| **Inline** | Native Claude Code chat | Coordinator asks checkpoint questions directly in the chat session. |
+| **Plan Approval** | Agent Teams native | Teammate actions require coordinator approval. Always available. |
 
 HITL checkpoint types from System A are preserved:
 - **Type A -- Round review**: after non-consensus rounds (summary + continue/stop/feedback)
@@ -503,10 +490,8 @@ HITL checkpoint types from System A are preserved:
 | Plugin manifest | System A | `plugin.json`, `.claude-plugin/plugin.json` |
 | 7 pattern files | System A | `references/patterns/*.md` |
 | 6 output templates + briefs | System A | `references/output-templates/*.md` |
-| Telegram MCP server | System A | `mcp/telegram-ask/` |
 | `council-launch` skill | System A | `skills/council-launch/SKILL.md` (updated paths) |
 | `council-resume` skill | System A | `skills/council-resume/SKILL.md` |
-| `council-telegram-setup` skill | System A | `skills/council-telegram-setup/SKILL.md` |
 | Validation scripts | System A | `scripts/validate-references.mjs` |
 | Example councils | System A | `council-models/` (inert reference) |
 

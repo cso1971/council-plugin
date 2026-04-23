@@ -12,7 +12,7 @@ Council Plugin is a **Claude Code / Cowork plugin** that lets any user -- busine
 
 > *"Make me a Council of Agents to analyze this public tender so I can write a proposal"* -- and the system does the rest.
 
-**Primary target**: Claude Cowork (desktop/web). Inline HITL is the default interaction mode. Telegram is an optional addon. The wizard flow is optimized for Cowork's chat interface. CLI remains fully supported but is not the assumed default.
+**Primary target**: Claude Cowork (desktop/web). Inline HITL is the interaction mode. The wizard flow is optimized for Cowork's chat interface. CLI remains fully supported but is not the assumed default.
 
 **Runtime**: Agent Teams. The plugin generates files; Agent Teams runs them. No custom runtime.
 
@@ -64,7 +64,6 @@ council-plugin/                              (this repo, installed as plugin)
     council-wizard/SKILL.md                  unified 5-phase wizard
     council-launch/SKILL.md                  compose Agent Teams kickoff
     council-resume/SKILL.md                  re-open prior sessions
-    council-telegram-setup/SKILL.md          Telegram onboarding
   references/
     patterns/                                7 pattern files (topology + prompts)
       hub-and-spoke.md
@@ -108,8 +107,6 @@ council-plugin/                              (this repo, installed as plugin)
       coordinator.md.tmpl                    coordinator agent template
       teammate.md.tmpl                       persona agent template
       domain-context.md.tmpl                 domain context template
-  mcp/
-    telegram-ask/                            MCP server (unchanged)
   scripts/
     validate-references.mjs                  extended for new directories
   council-models/                            inert examples (reference only)
@@ -129,7 +126,6 @@ When the wizard runs in a user project, it generates:
       <role-slug>.md                         one per teammate
     skills/                                  OPTIONAL per-agent domain skills
       council-<role-slug>/SKILL.md           only when deep domain grounding needed
-  .mcp.json                                  git-ignored (Telegram config)
   council/
     config.md                                council metadata (YAML frontmatter)
     domain-context.md                        scenario/project knowledge
@@ -140,7 +136,6 @@ When the wizard runs in a user project, it generates:
     round-1.md ... round-N.md               round logs
     <output>.md                              final output (decision|findings|...)
     escalation.md                            if no consensus after max rounds
-    telegram-log.md                          if Telegram HITL used
 ```
 
 Key difference from the pre-unification layout: agent files live at `.claude/agents/` (Agent Teams native discovery path) instead of `council/agents/`.
@@ -455,28 +450,21 @@ The 8-phase wizard (System A) and 6-phase wizard (System B) merge into a streaml
 
 5. For each agent: ask if they need a domain-specific skill (only if relevant skills exist or the persona has a baseline skill template).
 
-### Phase 4 -- HITL Configuration
+### Phase 4 -- HITL Confirmation
 
-1. **Inline is the default.** On Cowork, inline HITL is the natural interaction mode -- the user is already in a chat interface.
+Inline HITL is the only interaction mode. The coordinator asks checkpoint questions directly in the chat session. No setup required.
 
-2. Offer Telegram as an optional addon: *"Want to add Telegram notifications for HITL checkpoints?"*
-   - Yes -> delegate to `council-telegram-setup`
-   - No -> proceed with `hitl_mode: inline`
-
-3. Check for existing `.mcp.json` with `telegram-ask` registered. If present, confirm reuse.
-
-4. Record `hitl_mode` in config. Inline is first-class, not degraded.
+Confirm to the user that checkpoints will appear inline during the council run and that Plan Approval (native Agent Teams) is always available.
 
 ### Phase 5 -- Generate and Launch Offer
 
 Generate all artifacts:
 
-- `council/config.md` (YAML frontmatter: pattern, topic, max_rounds, hitl_mode, output_style, agents list, protocol, setup_date)
+- `council/config.md` (YAML frontmatter: pattern, topic, max_rounds, output_style, agents list, protocol, setup_date)
 - `council/domain-context.md` (if not already present from Phase 1)
 - `.claude/agents/coordinator.md` (assembled from pattern template + protocol + teammates table)
 - `.claude/agents/<slug>.md` per teammate (assembled from three-layer composition: protocol + persona + domain context)
 - `Docs/INDEX.md` (if `Docs/` has content)
-- `.gitignore` update (ensure `.mcp.json` is ignored)
 - `Sessions/` directory
 - Optional: `.claude/skills/council-<slug>/SKILL.md` per agent that declared a domain skill
 
@@ -503,7 +491,7 @@ For a clear request like *"Make me a council to analyze this public tender so I 
 >
 > **Pattern**: builder-validator (Legal Advisor + Financial Controller draft; Market Analyst + Compliance Officer validate)
 > **Protocol**: deliberative-voting (default)
-> **HITL**: inline (no Telegram detected)
+> **HITL**: inline
 >
 > Want me to adjust the team, or should I generate the council?
 
@@ -525,7 +513,7 @@ Writes all artifacts. No separate skill invocation needed. The `council-scaffold
 - Composes the Agent Teams kickoff prompt:
   - Topic, pattern, coordinator instructions (from `.claude/agents/coordinator.md`)
   - Teammate list with spawn instructions
-  - HITL mode and checkpoint behavior
+  - Inline HITL checkpoint behavior
   - Output paths and template reference
   - Execution constraints (max rounds, consensus/rejection rules)
   - Output style (brief/standard/detailed) and its implications
@@ -537,7 +525,7 @@ No custom runtime. Agent Teams orchestrates:
 1. Coordinator spawns teammates (reads `.claude/agents/*.md`)
 2. Teammates respond using protocol format
 3. Coordinator writes `round-N.md` after each round
-4. HITL checkpoints per pattern type (Telegram or inline)
+4. Inline HITL checkpoints per pattern type
 5. Consensus check -> final output, or escalation after max rounds
 
 ### 6.4 Resume (`council-resume` skill)
@@ -548,35 +536,22 @@ No custom runtime. Agent Teams orchestrates:
 - For completed: offers new session on same council
 - For escalated: offers re-scaffold with adjusted scenario (wizard Phase 2+)
 - Handles partial/corrupted rounds (flag, offer discard)
-- Checks Telegram log as audit trail if present
 
 ---
 
 ## 7. HITL Integration
 
-### 7.1 Inline (Cowork/CLI -- default)
+### 7.1 Inline (Cowork/CLI)
 
-The primary HITL mode. The coordinator asks directly in the chat session. Same message formats and reply parsing as Telegram. Works natively in both Cowork and CLI.
+The coordinator asks checkpoint questions directly in the chat session. Works natively in both Cowork and CLI. No setup required.
 
-On Cowork, inline HITL is the natural mode -- the user is already in a conversational interface. No setup required.
+On Cowork, inline HITL is the natural mode -- the user is already in a conversational interface.
 
-### 7.2 Telegram (optional addon)
+### 7.2 Plan Approval (native)
 
-`hitl_mode: telegram` uses the `mcp/telegram-ask/` MCP server. Setup via `council-telegram-setup` skill:
+Agent Teams native feature. Teammate actions require coordinator approval. Always available. No configuration needed.
 
-1. Create bot via BotFather
-2. Validate token (`getMe`)
-3. Discover `chat_id`
-4. Write `.mcp.json` (git-ignored)
-5. Roundtrip test
-
-`ask_operator(message)` sends to Telegram, long-polls for reply (600s timeout). TIMEOUT auto-continues.
-
-### 7.3 Plan Approval (native)
-
-Agent Teams native feature. Teammate actions require coordinator approval. Always available regardless of `hitl_mode`. No configuration needed.
-
-### 7.4 Checkpoint types
+### 7.3 Checkpoint types
 
 | Type | Trigger | Behavior |
 |------|---------|----------|
@@ -605,15 +580,9 @@ Cowork's project model maps to a local folder. The plugin reads from and writes 
 
 No remote file access or cloud storage assumptions. Everything is local files.
 
-### 8.3 HITL: inline-first rationale
+### 8.3 HITL: inline rationale
 
-Cowork users are already in a chat interface. Inline HITL is zero-setup and matches the interaction model. Telegram adds value when:
-
-- The council runs unattended and the operator wants mobile notifications
-- Multiple stakeholders need to approve checkpoints
-- The operator wants an audit trail outside the project
-
-The wizard presents inline as the default and Telegram as *"Want to add Telegram notifications?"* -- not *"Set up Telegram or fall back to inline."*
+Cowork users are already in a chat interface. Inline HITL is zero-setup and matches the interaction model. The coordinator asks checkpoint questions directly in the active session; the user replies in the same conversation.
 
 ### 8.4 Wizard UX in Cowork chat
 
@@ -622,7 +591,7 @@ The 5-phase wizard maps naturally to Cowork conversation turns:
 1. User describes scenario -> Phase 1 (one turn)
 2. Claude asks recommender questions -> Phase 2 (1-2 turns)
 3. Claude proposes team -> Phase 3 (one turn + optional adjustments)
-4. HITL config -> Phase 4 (one turn, often skipped if inline default accepted)
+4. HITL confirmation -> Phase 4 (one turn, typically immediate)
 5. Generate + launch offer -> Phase 5 (one turn)
 
 For clear requests, Phases 1-3 collapse into a single turn (see collapsed flow example in section 5).
@@ -642,10 +611,9 @@ Generated artifacts make no CLI assumptions:
 
 | Skill | Purpose | Invocation |
 |-------|---------|------------|
-| `council-wizard` | 5-phase conversational wizard: scenario intake, pattern selection, agent composition, HITL config, generation | Primary entry point |
+| `council-wizard` | 5-phase conversational wizard: scenario intake, pattern selection, agent composition, HITL confirmation, generation | Primary entry point |
 | `council-launch` | Compose Agent Teams kickoff prompt from generated artifacts | After wizard or manual config |
 | `council-resume` | Re-open prior sessions: completed, in-progress, or escalated | When `Sessions/` has existing data |
-| `council-telegram-setup` | 5-step guided Telegram setup: BotFather, token validation, chat ID, `.mcp.json`, roundtrip test | When user opts into Telegram HITL |
 
 Note: `council-scaffold` (System A) is removed as a standalone skill. Its logic is absorbed into `council-wizard` Phase 5.
 
@@ -668,7 +636,6 @@ Note: `council-scaffold` (System A) is removed as a standalone skill. Its logic 
 ```bash
 npm install
 npm run validate:references    # schema + heading validation
-npm run test:telegram-mcp-dry  # Telegram MCP dry-run with stub replies
 ```
 
 ### End-to-end verification checklist
@@ -742,8 +709,6 @@ The category field (`business` vs `tech`) and the distinct domain keywords disam
 | Failure mode | Handling |
 |---|---|
 | `Docs/` missing or empty | Warn, allow user to proceed with scenario-only context |
-| Telegram setup declined or failed | Fall back to `hitl_mode: inline` |
-| Telegram `ask_operator` timeout at runtime | Auto-continue to next round; log a note in `round-N.md` |
 | Skill-creator invocation fails | Retry with a more explicit brief; on second failure, fall back to copying the nearest archetype persona with a note "manual refinement recommended" |
 | Required scaffold file missing at launch | Stop with an explicit error referencing the wizard |
 | Session crash mid-round (Claude Code closed) | Partial round file may remain; `council-resume` detects incomplete rounds and offers discard or resume |
@@ -761,4 +726,3 @@ Items explicitly deferred from the first release:
 - **Persistent semantic memory** -- RAG or vector search over `Docs/` across council sessions.
 - **Scheduled / unattended councils** -- running a council without an interactive operator present.
 - **Cross-council shared knowledge** -- a shared knowledge base spanning multiple council projects.
-- **npm-published MCP companion** -- the `telegram-ask` MCP server is embedded as a minimal Node script in v1; a published npm package is a follow-up once the API stabilizes.
