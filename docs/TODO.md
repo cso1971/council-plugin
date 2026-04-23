@@ -248,11 +248,13 @@ graph TD
 - `skills/council-scaffold/` directory -- delete
 
 **Acceptance criteria**:
-- [ ] `skills/council-scaffold/` does not exist
-- [ ] No other skill file references `council-scaffold`
-- [ ] `grep -r "council-scaffold" --include="*.md"` returns only hits in `docs/archived/`, SPEC.md, TODO.md, and UNIFICATION-PLAN.md
+- [x] `skills/council-scaffold/` does not exist
+- [x] No other skill file references `council-scaffold`
+- [x] `grep -r "council-scaffold" --include="*.md"` returns only hits in `docs/archived/`, SPEC.md, TODO.md, and UNIFICATION-PLAN.md
 
 **Depends on**: T09
+
+**Status**: DONE
 
 ---
 

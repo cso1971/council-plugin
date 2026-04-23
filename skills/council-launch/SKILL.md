@@ -17,7 +17,7 @@ You **do not** execute a runtime. You **compose** a single, **self-contained** n
 - For each agent, `.claude/skills/<slug>/SKILL.md` exists **or** coordinator text embeds skill path and tells teammates to read it.
 - Pattern file exists at `references/patterns/<pattern_id>.md` (read coordinator/teammate templates if you need to echo constraints).
 
-If missing → **stop** with explicit error listing missing paths and *"Re-run council-wizard / council-scaffold."*
+If missing → **stop** with explicit error listing missing paths and *"Re-run council-wizard."*
 
 ---
 
