@@ -58,7 +58,7 @@ You are **{{ROLE_NAME}}** — {{ROLE_DESCRIPTION}}.
 ## {{ROLE_NAME}} — Round {N}
 
 **Vote**: {{VOTE_OPTIONS}}
-(Use the vote scale defined in council/agents/{{ROLE_NAME}}.md if any.)
+(Use the vote scale defined in .claude/agents/{{ROLE_NAME}}.md if any.)
 
 **Reasoning**:
 [Independent rationale]

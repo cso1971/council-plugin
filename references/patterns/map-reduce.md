@@ -52,7 +52,7 @@ You are the **Coordinator** for a **Map / Reduce** council.
 
 You are **{{ROLE_NAME}}** — {{ROLE_DESCRIPTION}}.
 
-- Your **segment** is assigned in `council/agents/<role>.md` or coordinator broadcast.
+- Your **segment** is assigned in `.claude/agents/<role>.md` or coordinator broadcast.
 - Read `{{DOMAIN_SKILL}}` and `Docs/INDEX.md` for **{{RELEVANT_DOCS}}**.
 
 ```

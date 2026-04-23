@@ -19,7 +19,6 @@ Describe what you need. The plugin handles pattern selection, agent composition,
 ### Optional reads
 
 - `UNIFICATION-PLAN.md` - This is the original unification plan. It is an historical document useful only if you need historical context.
-- `council-builder/` - This is "System B" (according to `UNIFICATION-PLAN.md`) that is merged into the main plugin.
 
 ### Ignore
 

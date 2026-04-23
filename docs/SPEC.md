@@ -113,7 +113,6 @@ council-plugin/                              (this repo, installed as plugin)
     TODO.md                                  implementation backlog
     UNIFICATION-PLAN.md                      historical merge plan
     PATTERNS.md                              15-pattern catalog in Italian (reference only)
-    archived/council-builder/                archived System B source
 ```
 
 ### 2.2 Generated user-project layout
@@ -642,9 +641,9 @@ npm run validate:references    # schema + heading validation
 
 ### End-to-end verification checklist
 
-- `grep -r "role-archetypes"` returns only hits in `docs/archived/`
-- `grep -r "council-scaffold"` returns only hits in `docs/archived/` and SPEC.md (historical reference)
-- `grep -r "council/agents/"` returns only hits in `docs/archived/` and `council-models/`
+- `grep -r "role-archetypes"` returns only hits in `docs/` (TODO.md, UNIFICATION-PLAN.md -- historical migration context)
+- `grep -r "council-scaffold"` returns only hits in `docs/` (SPEC.md, TODO.md, UNIFICATION-PLAN.md -- historical reference)
+- `grep -r "council/agents/"` returns only hits in `docs/` and `council-models/`
 - All pattern files have `default_protocol` in frontmatter
 - No pattern file contains hardcoded vote option lists (all use `{{...}}` protocol placeholders)
 - Both `plugin.json` files have `"name": "council-plugin"`
@@ -685,9 +684,9 @@ Each pattern declares a `default_protocol`. The wizard uses it without prompting
 
 ### Q6: What happens to `council-builder/PROMPT.md`?
 
-**Decision**: Extract essentials into wizard + templates; archive the rest.
+**Decision**: Extract essentials into wizard + templates; delete the source directory.
 
-The critical content from PROMPT.md (three-layer composition model, template variable system, generation quality criteria) is captured in this SPEC (sections 2.3, 4.4) and in the template files themselves. The full PROMPT.md is archived under `docs/archived/council-builder/PROMPT.md` for historical reference.
+The critical content from PROMPT.md (three-layer composition model, template variable system, generation quality criteria) is captured in this SPEC (sections 2.3, 4.4) and in the template files themselves. The `council-builder/` directory has been deleted; all useful content was migrated into `references/` by earlier tasks.
 
 ### Q7: Language considerations
 

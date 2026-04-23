@@ -88,7 +88,7 @@ Confirm to the user that:
 
 ## Phase 5 — Generate and Launch Offer
 
-Generate all artifacts in order. Agent files go to **`.claude/agents/`** — not `council/agents/`.
+Generate all artifacts in order. Agent files go to **`.claude/agents/`**.
 
 ### 1. `council/config.md`
 

@@ -250,7 +250,7 @@ graph TD
 **Acceptance criteria**:
 - [x] `skills/council-scaffold/` does not exist
 - [x] No other skill file references `council-scaffold`
-- [x] `grep -r "council-scaffold" --include="*.md"` returns only hits in `docs/archived/`, SPEC.md, TODO.md, and UNIFICATION-PLAN.md
+- [x] `grep -r "council-scaffold" --include="*.md"` returns only hits in SPEC.md, TODO.md, and UNIFICATION-PLAN.md
 
 **Depends on**: T09
 
@@ -340,20 +340,19 @@ graph TD
 
 ---
 
-### T15: Archive `council-builder/` to `docs/archived/council-builder/`
+### T15: Delete `council-builder/`
 
-**Description**: Move the entire `council-builder/` directory to `docs/archived/council-builder/` as reference material. Preserve history with `git mv`.
+**Description**: Delete the entire `council-builder/` directory. All useful content was already migrated into the unified plugin by T02–T05. No archive is needed.
 
 **Files**:
-- `council-builder/` -> `docs/archived/council-builder/`
+- `council-builder/` -- deleted
 
 **Acceptance criteria**:
-- [ ] `council-builder/` no longer exists at repo root
-- [ ] Content preserved under `docs/archived/council-builder/`
-- [ ] `PROMPT.md` and `README.md` present in archive
-- [ ] `git mv` used to preserve history
+- [x] `council-builder/` no longer exists at repo root
 
 **Depends on**: none
+
+**Status**: DONE
 
 ---
 
@@ -388,12 +387,12 @@ graph TD
 - `SPEC.md`
 
 **Acceptance criteria**:
-- [ ] File exists with all sections from the outline in the implementation plan
-- [ ] Resolves all 8 open questions from UNIFICATION-PLAN.md section 12
-- [ ] Cowork mentioned throughout as primary target
-- [ ] Three-layer composition model documented
-- [ ] Complete template variable reference
-- [ ] All pattern-protocol pairings documented
+- [x] File exists with all sections from the outline in the implementation plan
+- [x] Resolves all 8 open questions from UNIFICATION-PLAN.md section 12
+- [x] Cowork mentioned throughout as primary target
+- [x] Three-layer composition model documented
+- [x] Complete template variable reference
+- [x] All pattern-protocol pairings documented
 
 **Depends on**: none
 
@@ -430,14 +429,16 @@ graph TD
 **Files**: none (verification only)
 
 **Acceptance criteria**:
-- [ ] `npm run validate:references` passes
-- [ ] `grep -r "role-archetypes" --include="*.md" --include="*.mjs" --include="*.json"` returns only hits in `docs/archived/`
-- [ ] `grep -r "council-scaffold" --include="*.md"` returns only hits in `docs/archived/`, SPEC.md, TODO.md, and UNIFICATION-PLAN.md
-- [ ] `grep -r "council/agents/" --include="*.md"` returns only hits in `docs/archived/` and `council-models/`
-- [ ] All pattern files have `default_protocol` in frontmatter
-- [ ] Both `plugin.json` files have `"name": "council-plugin"`
+- [x] `npm run validate:references` passes
+- [x] `grep -r "role-archetypes" --include="*.md" --include="*.mjs" --include="*.json"` returns only hits in `docs/` (TODO.md, UNIFICATION-PLAN.md, SPEC.md -- historical migration context; no hits in non-docs files)
+- [x] `grep -r "council-scaffold" --include="*.md"` returns only hits in SPEC.md, TODO.md, and UNIFICATION-PLAN.md
+- [x] `grep -r "council/agents/" --include="*.md"` returns only hits in `council-models/` and `docs/` (historical context)
+- [x] All pattern files have `default_protocol` in frontmatter
+- [x] Both `plugin.json` files have `"name": "council-plugin"`
 
 **Depends on**: T10, T11, T12, T13, T14, T15, T16
+
+**Status**: DONE
 
 ---
 

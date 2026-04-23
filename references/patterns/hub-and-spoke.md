@@ -36,7 +36,7 @@ You are the **Coordinator (hub)** for a Hub-and-Spoke council on Agent Teams.
 
 **Instructions**
 
-1. Read `council/agents/coordinator.md` if present for local overrides.
+1. Read `.claude/agents/coordinator.md` if present for local overrides.
 2. Spawn each teammate in parallel. Request **plan approval** for each before they work.
 3. Broadcast `{{TOPIC}}` each round. Collect responses in the mandatory format (Vote + Reasoning + Details).
 4. After each round, write `Sessions/<slug>/round-N.md` with every response and your synthesis.
