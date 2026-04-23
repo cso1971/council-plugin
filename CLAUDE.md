@@ -13,20 +13,25 @@ Describe what you need. The plugin handles pattern selection, agent composition,
 
 ### Must reads
 
-- `SPEC.md` - This is the north-star. The ultimate specification of the plugin
+- `SPEC.md` - This is the north-star. The ultimate specification of the plugin.
 - `TODO.md` - This is the list of tasks to complete the plugin. Review it to plan in advance when you make changes.
 
 ### Optional reads
 
-- `UNIFICATION-PLAN.md` - This is the original unification plan. It is an historical document useful only if you need historical context
-- `PATTERNS.md` - Is a human-only reference guide in italian. You can safely ignore this file.
+- `UNIFICATION-PLAN.md` - This is the original unification plan. It is an historical document useful only if you need historical context.
+- `council-builder/` - This is "System B" (according to `UNIFICATION-PLAN.md`) that is merged into the main plugin.
+
+### Ignore
+
+- `PATTERNS.md` - This is a human-only reference guide in italian. You can safely ignore this file.
+- `council-models/` - This is a reference examples folder. You can safely ignore this file.
 
 ## Requirements
 
-- This plugin is Claude Cowork first. It **must** work with Claude Cowork
+- This plugin is Claude Cowork first. It **must** work with Claude Cowork.
 - Human in the Loop is important. The plugin must support it via native Claude Cowork interaction mechanisms.
 
 ## Bookkeeping
 
-- If you finish a task from `docs/TODO.md` you have to mark it as completed
-- It is your duty to keep `README.md` and `docs/*` documentation up-to-date if you make changes
+- If you finish a task from `docs/TODO.md` you have to mark it as completed.
+- It is your duty to keep `README.md` and `docs/*` documentation up-to-date if you make changes.

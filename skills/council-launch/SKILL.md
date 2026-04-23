@@ -59,13 +59,12 @@ Produce a markdown block the user can copy.
 2. **Pattern** — id + one sentence what it implies for orchestration.
 3. **Coordinator** — instruct lead to read `.claude/agents/coordinator.md` and follow it literally.
 4. **Teammates** — bullet list: display name + `.claude/agents/<slug>.md` path; say: spawn **in parallel** per pattern, **plan approval** for each teammate before substantive work (Agent Teams native).
-5. **HITL mode** — `telegram`: use MCP tool **`ask_operator`** at checkpoints; `inline`: ask user in chat with same prompt text / expected replies (`continue`, `stop`, `approve`, `revise: …`, etc.).
+5. **HITL mode** — inline: ask user in chat with prompt text / expected replies (`continue`, `stop`, `approve`, `revise: …`, etc.).
 6. **Paths** — `Sessions/<slug>/round-N.md` for each round synthesis; final output path; `escalation.md` if max rounds without consensus.
 7. **Execution constraints** — `max_rounds` from config; consensus = all APPROVE (non-abstaining) unless pattern file defines variant; **2+ REJECT** → Type B; else Type A round review; plan/artifact gates → Type C per pattern docs.
 8. **Vote + Reasoning + Details** — require standard teammate response format from coordinator template.
-9. **Timeouts** — if `ask_operator` returns `TIMEOUT`, log in `round-N.md` and **auto-continue** per design spec.
-10. **Tooling guardrail** — teammates must **not** use disallowed team tools; only lead orchestrates.
-11. **Output style** — state the `output_style` from config and its implications:
+9. **Tooling guardrail** — teammates must **not** use disallowed team tools; only lead orchestrates.
+10. **Output style** — state the `output_style` from config and its implications:
     - `brief`: each teammate response ≤120 words; coordinator synthesis in `round-N.md` is a vote table + 3-5 bullets (no narrative); final output uses the `-brief.md` template verbatim with its word caps.
     - `standard`: full narrative sections per response; coordinator synthesis includes agreements/objections/revised-proposal prose; final output uses the base template.
     - `detailed`: like `standard` but encourage extended reasoning and per-section depth; same base template.
@@ -83,7 +82,7 @@ Produce a markdown block the user can copy.
 
 ## Operator message formats (HITL)
 
-Use business-friendly summaries. Same strings for Telegram and inline.
+Use business-friendly summaries.
 
 ---
 

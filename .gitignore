@@ -1,4 +1,4 @@
-# Dependencies (root + subpackages e.g. mcp/telegram-ask)
+# Dependencies
 node_modules/
 
 # Environment and secrets

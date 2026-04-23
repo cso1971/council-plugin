@@ -286,13 +286,15 @@ graph TD
 - `skills/council-resume/SKILL.md`
 
 **Acceptance criteria**:
-- [ ] Paths consistent with SPEC.md section 6.4
-- [ ] Agent file references use `.claude/agents/` if mentioned
-- [ ] Session detection logic matches the output file names from all patterns
-- [ ] No stale references to old paths
-- [ ] Handles resume-time failure modes from SPEC.md section 12: partial/incomplete round files (detect, offer discard or resume)
+- [x] Paths consistent with SPEC.md section 6.4
+- [x] Agent file references use `.claude/agents/` if mentioned
+- [x] Session detection logic matches the output file names from all patterns
+- [x] No stale references to old paths
+- [x] Handles resume-time failure modes from SPEC.md section 12: partial/incomplete round files (detect, offer discard or resume)
 
 **Depends on**: T09
+
+**Status**: DONE
 
 ---
 
@@ -305,13 +307,15 @@ graph TD
 - `.claude-plugin/plugin.json`
 
 **Acceptance criteria**:
-- [ ] Both files have `"name": "council-plugin"`
-- [ ] Description mentions both business and technical users
-- [ ] Description mentions Cowork
-- [ ] Keywords array includes `"cowork"`
-- [ ] Keywords array includes both `"business"` and `"tech"`
+- [x] Both files have `"name": "council-plugin"`
+- [x] Description mentions both business and technical users
+- [x] Description mentions Cowork
+- [x] Keywords array includes `"cowork"`
+- [x] Keywords array includes both `"business"` and `"tech"`
 
 **Depends on**: none
+
+**Status**: DONE
 
 ---
 
@@ -359,16 +363,18 @@ graph TD
 - `README.md`
 
 **Acceptance criteria**:
-- [ ] No mention of "non-technical" as exclusive audience
-- [ ] Mentions Cowork as primary target
-- [ ] Layout table matches SPEC.md section 2.1 (personas, protocols, templates directories)
-- [ ] Skills table shows 3 skills (wizard, launch, resume)
-- [ ] Agent paths use `.claude/agents/` not `council/agents/`
-- [ ] Plugin name is `council-plugin` not `council-skill`
-- [ ] Quick-start for both Cowork and CLI
-- [ ] Links to SPEC.md as design reference
+- [x] No mention of "non-technical" as exclusive audience
+- [x] Mentions Cowork as primary target
+- [x] Layout table matches SPEC.md section 2.1 (personas, protocols, templates directories)
+- [x] Skills table shows 3 skills (wizard, launch, resume)
+- [x] Agent paths use `.claude/agents/` not `council/agents/`
+- [x] Plugin name is `council-plugin` not `council-skill`
+- [x] Quick-start for both Cowork and CLI
+- [x] Links to SPEC.md as design reference
 
 **Depends on**: none
+
+**Status**: DONE
 
 ---
 
@@ -389,7 +395,7 @@ graph TD
 
 **Depends on**: none
 
-**Status**: DONE (this file)
+**Status**: DONE
 
 ---
 

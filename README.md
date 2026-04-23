@@ -34,6 +34,7 @@ The plugin ships with **7 orchestration patterns** (hub-and-spoke, swarm, advers
 
 | Path | Purpose |
 |------|---------|
+| `CLAUDE.md` | Project instructions for Claude Code |
 | `.claude-plugin/plugin.json` | Plugin manifest (canonical for Claude Code) |
 | `plugin.json` | Duplicate manifest metadata (repo/spec alignment) |
 | `skills/` | Plugin skills: wizard, launch, resume |
@@ -45,6 +46,7 @@ The plugin ships with **7 orchestration patterns** (hub-and-spoke, swarm, advers
 | `references/recommender/` | Pattern recommender question tree |
 | `scripts/` | Validation and test scripts |
 | `council-models/` | Reference example councils (not used by runtime) |
+| `docs/` | Design specs (`SPEC.md`), implementation backlog (`TODO.md`), archived material |
 
 ## Skills
 
@@ -84,9 +86,9 @@ npm run validate:references
 
 ## Design reference
 
-- [SPEC.md](SPEC.md) -- authoritative design and specification
-- [UNIFICATION-PLAN.md](UNIFICATION-PLAN.md) -- historical merge plan (council-plugin + council-builder)
-- [agent-interaction-patterns.md](agent-interaction-patterns.md) -- 15-pattern catalog with Agent Teams compatibility
+- [docs/SPEC.md](docs/SPEC.md) -- authoritative design and specification
+- [docs/UNIFICATION-PLAN.md](docs/UNIFICATION-PLAN.md) -- historical merge plan (council-plugin + council-builder)
+- [docs/PATTERNS.md](docs/PATTERNS.md) -- 15-pattern catalog with Agent Teams compatibility
 
 ## License
 

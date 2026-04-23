@@ -25,7 +25,7 @@ Operate on **`Sessions/<slug>/`** as source of truth. Read **`council/config.md`
 ## Branch A — Completed session
 
 - Show short summary from final output (Executive summary section if present).
-- Offer: **new session** on same council (new slug from new topic) → user should run **`council-launch`** after updating topic in `council/config.md` **or** re-run wizard Phase 2–7 for a clean topic.
+- Offer: **new session** on same council (new slug from new topic) → user should run **`council-launch`** after updating topic in `council/config.md` **or** re-run **`council-wizard`** from Phase 1 for a fresh topic.
 
 ---
 
@@ -44,16 +44,10 @@ Operate on **`Sessions/<slug>/`** as source of truth. Read **`council/config.md`
 ## Branch C — Escalated session
 
 - Surface `escalation.md` summary to user.
-- Offer: new session with **adjusted scenario** (wizard Phase 2+) or different pattern (Phase 4+), then scaffold delta if team changes.
-
----
-
-## Telegram log
-
-If `telegram-log.md` exists in session, mention it as audit trail for HITL exchanges.
+- Offer: new session with **adjusted scenario** (re-run **`council-wizard`** from Phase 2) or different pattern (from Phase 2); the wizard's Phase 5 regenerates all artifacts.
 
 ---
 
 ## Safety
 
-Never print secrets from `.mcp.json`. If `hitl_mode` was `telegram` but MCP missing, suggest inline fallback for resumed work.
+Never print secrets from configuration files. Inline HITL is the standard interaction mode for resumed sessions.

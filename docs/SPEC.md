@@ -54,12 +54,10 @@ The plugin is designed to work **with** these constraints, not around them:
 
 ```
 council-plugin/                              (this repo, installed as plugin)
+  CLAUDE.md                                  project instructions for Claude Code
   plugin.json
   .claude-plugin/plugin.json                 canonical plugin manifest
   README.md
-  SPEC.md                                    this document
-  UNIFICATION-PLAN.md                        historical merge plan
-  agent-interaction-patterns.md              15-pattern catalog (reference)
   skills/
     council-wizard/SKILL.md                  unified 5-phase wizard
     council-launch/SKILL.md                  compose Agent Teams kickoff
@@ -109,8 +107,12 @@ council-plugin/                              (this repo, installed as plugin)
       domain-context.md.tmpl                 domain context template
   scripts/
     validate-references.mjs                  extended for new directories
-  council-models/                            inert examples (reference only)
-  docs/                                      design specs, archived material
+  council-models/                            reference examples (not used by runtime)
+  docs/
+    SPEC.md                                  this document
+    TODO.md                                  implementation backlog
+    UNIFICATION-PLAN.md                      historical merge plan
+    PATTERNS.md                              15-pattern catalog in Italian (reference only)
     archived/council-builder/                archived System B source
 ```
 
@@ -691,7 +693,7 @@ The critical content from PROMPT.md (three-layer composition model, template var
 
 **Decision**: Italian document kept as internal reference.
 
-`agent-interaction-patterns.md` (in Italian) is retained as-is at the repo root. It's an internal reference document for the 15-pattern catalog, not user-facing. The plugin's user-facing content is English.
+`docs/PATTERNS.md` (in Italian) is retained as-is under `docs/`. It's an internal reference document for the 15-pattern catalog, not user-facing. The plugin's user-facing content is English.
 
 ### Q8: Persona naming -- `product-analyst` vs `pm-facilitator`
 
@@ -721,7 +723,7 @@ The category field (`business` vs `tech`) and the distinct domain keywords disam
 Items explicitly deferred from the first release:
 
 - **Custom pattern authoring** -- users defining their own topology files beyond the 7 built-in patterns.
-- **Additional native patterns** -- expanding beyond the 7 Agent Teams-supported patterns (⚠️ workaround and ❌ unsupported patterns from `agent-interaction-patterns.md`).
+- **Additional native patterns** -- expanding beyond the 7 Agent Teams-supported patterns (⚠️ workaround and ❌ unsupported patterns from `docs/PATTERNS.md`).
 - **Multi-language output** -- deliberation and output templates in languages other than English.
 - **Persistent semantic memory** -- RAG or vector search over `Docs/` across council sessions.
 - **Scheduled / unattended councils** -- running a council without an interactive operator present.

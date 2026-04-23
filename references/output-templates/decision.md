@@ -37,6 +37,6 @@
 
 ## Deliberation trail
 
-Summary of rounds and operator checkpoints (references to `Sessions/{{SESSION_SLUG}}/round-*.md` and `telegram-log.md` if used):
+Summary of rounds and operator checkpoints (references to `Sessions/{{SESSION_SLUG}}/round-*.md`):
 
 {{DELIBERATION_TRAIL}}
