@@ -1,9 +1,0 @@
-{
-  "name": "council-plugin",
-  "description": "Convene a Council of Agents for business or technical decisions via Claude Cowork / Agent Teams — wizard, launch, resume.",
-  "version": "0.1.0",
-  "author": {
-    "name": "council-plugin contributors"
-  },
-  "keywords": ["council", "agent-teams", "deliberation", "hitl", "cowork", "business", "tech"]
-}
