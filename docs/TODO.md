@@ -91,13 +91,15 @@ graph TD
 - All 12 files in `references/personas/` with `category: business`
 
 **Acceptance criteria**:
-- [ ] All 12 business personas have all 10 mandatory sections from the unified format
-- [ ] `category: business` in frontmatter for each
-- [ ] `domain-context-sections` added to each persona's frontmatter, matching the vocabulary in SPEC.md section 3.3
-- [ ] Existing content (Role description, Baseline skill, Typical questions, Customization slots) preserved
+- [x] All 12 business personas have all 10 mandatory sections from the unified format
+- [x] `category: business` in frontmatter for each
+- [x] `domain-context-sections` added to each persona's frontmatter, matching the vocabulary in SPEC.md section 3.3
+- [x] Existing content (Role description, Baseline skill, Typical questions, Customization slots) preserved
 - [ ] `validate-references` passes after T14
 
 **Depends on**: T01
+
+**Status**: DONE
 
 ---
 
