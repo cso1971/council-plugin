@@ -114,14 +114,16 @@ graph TD
 - `references/protocols/_custom-template.md` -- migrated from `council-builder/.claude/skills/council-builder/protocols/_custom-template.md`
 
 **Acceptance criteria**:
-- [ ] 4 files exist in `references/protocols/`
-- [ ] `deliberative-voting.md` has all sections from the council-builder version (Configuration, Vote Semantics, Response Format, Consensus Rules, Escalation Rules, Deliberative Cycle, Output Formats, Behavioral Rules)
-- [ ] All output paths reference `Sessions/` not `council-log/`
-- [ ] `adversarial-debate-protocol.md` defines Position/Evidence/Counter-argument structure with FAVOR_A, FAVOR_B, SPLIT labels
-- [ ] `convergent-investigation.md` defines SUPPORTED, WEAK, REFUTED, INCONCLUSIVE hypothesis votes
-- [ ] `_custom-template.md` has comments explaining each required section
+- [x] 4 files exist in `references/protocols/`
+- [x] `deliberative-voting.md` has all sections from the council-builder version (Configuration, Vote Semantics, Response Format, Consensus Rules, Escalation Rules, Deliberative Cycle, Output Formats, Behavioral Rules)
+- [x] All output paths reference `Sessions/` not `council-log/`
+- [x] `adversarial-debate-protocol.md` defines Position/Evidence/Counter-argument structure with FAVOR_A, FAVOR_B, SPLIT labels
+- [x] `convergent-investigation.md` defines SUPPORTED, WEAK, REFUTED, INCONCLUSIVE hypothesis votes
+- [x] `_custom-template.md` has comments explaining each required section
 
 **Depends on**: none
+
+**Status**: DONE
 
 ---
 
@@ -135,14 +137,16 @@ graph TD
 - `references/templates/domain-context.md.tmpl` -- from `council-builder/.claude/skills/council-builder/domain-contexts/_context-template.md`
 
 **Acceptance criteria**:
-- [ ] 3 template files exist in `references/templates/`
-- [ ] No `.hbs` references remain in any non-archived file
-- [ ] No CLAUDE.md injection template exists
-- [ ] `coordinator.md.tmpl` contains all variables from SPEC.md section 4.4 coordinator table
-- [ ] `teammate.md.tmpl` contains all variables from SPEC.md section 4.4 teammate table
-- [ ] `domain-context.md.tmpl` includes both business and tech section vocabularies
+- [x] 3 template files exist in `references/templates/`
+- [x] No `.hbs` references remain in any non-archived file
+- [x] No CLAUDE.md injection template exists
+- [x] `coordinator.md.tmpl` contains all variables from SPEC.md section 4.4 coordinator table
+- [x] `teammate.md.tmpl` contains all variables from SPEC.md section 4.4 teammate table
+- [x] `domain-context.md.tmpl` includes both business and tech section vocabularies
 
 **Depends on**: none
+
+**Status**: DONE
 
 ---
 
