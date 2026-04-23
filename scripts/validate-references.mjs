@@ -1,6 +1,42 @@
 /**
- * Build-time validation for references/patterns and references/personas.
- * Run: npm run validate:references
+ * Build-time schema validation for all `references/` subdirectories.
+ *
+ * This is the canonical verification script for the council-plugin project.
+ * Run it after any structural change to `references/` to confirm integrity.
+ *
+ * Usage:
+ *   npm run validate:references
+ *
+ * Exits 0 on success. Exits 1 and prints an error message on the first
+ * violation found.
+ *
+ * What is validated
+ * -----------------
+ * references/patterns/ (exactly 7 files)
+ *   - YAML frontmatter keys: id, name, native_support (must be true),
+ *     min_agents, max_agents, output_template
+ *   - Required headings: When to use, Recommender signals, Role shape,
+ *     Coordinator prompt template, Teammate prompt template,
+ *     HITL checkpoints, Output mapping
+ *   - Required template placeholders: {{TOPIC}}, {{TEAMMATES}},
+ *     {{MAX_ROUNDS}}, {{OUTPUT_FILE}}, {{ROLE_NAME}}, {{ROLE_DESCRIPTION}},
+ *     {{DOMAIN_SKILL}}, {{RELEVANT_DOCS}}
+ *   - output_template value must match a known output-template filename
+ *
+ * references/personas/ (18 files: 12 business + 6 tech; flex 15–25)
+ *   - Files starting with "_" (e.g. _custom-template.md) are skipped
+ *   - YAML frontmatter keys: id, name, domains (array), fits_patterns (array)
+ *   - Required headings: Role description, Baseline skill (SKILL.md template),
+ *     Typical questions answered, Customization slots
+ *   - Body must contain a markdown fenced code block for the baseline skill
+ *
+ * references/output-templates/ (6 full + 6 brief variants)
+ *   - Full templates: headings Executive summary, Context, Deliberation trail
+ *     plus placeholders {{TOPIC}}, {{DATE}}, {{PATTERN}}, {{SESSION_SLUG}}
+ *   - Brief variants (*-brief.md): same 4 placeholders, no heading check
+ *
+ * references/recommender/questions.md
+ *   - File must exist and contain a ## Q1 section
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -97,9 +133,10 @@ function validatePatterns() {
 
 function validateArchetypes() {
   const dir = path.join(root, "references", "personas");
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
-  if (files.length < 10 || files.length > 15) {
-    throw new Error(`Expected 10–12 archetype files (flex 10–15), found ${files.length}`);
+  // Files starting with "_" are templates/meta files (e.g. _custom-template.md) -- skip them.
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md") && !f.startsWith("_"));
+  if (files.length < 15 || files.length > 25) {
+    throw new Error(`Expected 18 persona files (12 business + 6 tech, flex 15–25), found ${files.length}`);
   }
   for (const f of files) {
     const fp = path.join(dir, f);
