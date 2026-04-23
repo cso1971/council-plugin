@@ -10,13 +10,58 @@ skills required.
 > *"Make me a Council of Agents to analyze this public tender so I can
 > write a proposal"* -- and the system does the rest.
 
-## Quick start
+## Overview
 
-### Cowork (desktop / web)
+Council Plugin brings structured multi-agent deliberation to any project through a conversational wizard. You describe what you need; the wizard selects an orchestration pattern, proposes expert agents, assembles the council, and generates the files. Agent Teams runs them -- no custom runtime, no pre-existing agents required.
+
+**Who it's for:**
+
+- **Business users** -- product managers, legal ops professionals, strategy consultants, founders. Get multiple expert perspectives on a decision without writing any configuration.
+- **Technical users** -- engineers, architects, QA leads, security engineers. Run structured design reviews, threat models, or multi-perspective code analyses in a codebase context.
+
+The wizard detects the scenario domain (business / tech / mixed) and adapts its persona proposals, domain context, and output format accordingly. Both groups use the same plugin and the same skills.
+
+**What it ships with:** 7 orchestration patterns, 18 personas (12 business + 6 tech), 3 interaction protocols, and 6 output templates.
+
+**How it works:** every generated agent file is assembled from three independent layers -- a protocol layer (voting rules, consensus criteria), a persona layer (role identity, competencies, behavior), and a domain context layer (project-specific knowledge filtered per role). Agent Teams discovers the generated files at `.claude/agents/` and runs them natively.
+
+### How the plugin is organized
+
+```
+skills/           Entry points -- wizard, launch, resume
+references/
+  patterns/       7 orchestration topologies (hub-and-spoke, swarm, adversarial-debate, ...)
+  personas/       18 expert roles (12 business + 6 tech) + custom template
+  protocols/      Interaction rules: voting semantics, consensus, response format
+  templates/      Generation skeletons that assemble the three layers into agent files
+  output-templates/  Templates for the council's final deliverable
+  recommender/    Question tree that helps the wizard pick the right pattern
+```
+
+The `skills/` directory contains the three entry points you invoke:
+
+| Skill | When to use |
+|-------|-------------|
+| `council-wizard` | Starting point -- sets up a new council from scratch |
+| `council-launch` | Kicks off a council after the wizard has generated the files |
+| `council-resume` | Reopens a completed, in-progress, or escalated session |
+
+The `references/` directories are read by the wizard at generation time. Patterns define the team topology. Personas provide role identity. Protocols govern deliberation. Templates stitch all three together into the final `.claude/agents/*.md` files.
+
+## Getting Started
+
+### Prerequisites
+
+- Claude Cowork (desktop or web) **or** Claude Code CLI
+- A project folder with relevant documents or code (the wizard will scan it for context)
+
+### Install
+
+**Cowork (desktop / web)**
 
 Install the plugin through Cowork's plugin management UI. The wizard skill appears in the skill palette and can be invoked through conversation.
 
-### CLI
+**CLI**
 
 ```bash
 claude --plugin-dir .
@@ -24,11 +69,26 @@ claude --plugin-dir .
 
 Skills are namespaced by plugin name, e.g. `/council-plugin:council-wizard`.
 
-## What it does
+### First use
 
-A conversational **wizard** walks through 5 phases: scenario intake, pattern selection, agent composition, HITL confirmation, and artifact generation. The output is a set of `.claude/agents/*.md` files that Agent Teams runs natively -- no custom runtime.
+Invoke the wizard and describe your goal in plain language:
 
-The plugin ships with **7 orchestration patterns** (hub-and-spoke, swarm, adversarial-debate, map-reduce, plan-execute-verify, ensemble-voting, builder-validator), **18 personas** (12 business + 6 tech), **3 interaction protocols**, and **6 output templates**.
+```
+/council-plugin:council-wizard
+```
+
+> *"I need a council to analyze this public tender and help me write a proposal."*
+
+The wizard will ask a couple of targeted questions to pick the right pattern, then propose a team. For a clear request it can collapse scenario intake, pattern selection, and agent composition into a single response -- one confirmation and it generates the council.
+
+**What gets generated** in your project:
+
+- `.claude/agents/coordinator.md` and `.claude/agents/<role>.md` -- agent files that Agent Teams runs natively
+- `council/config.md` -- council metadata (pattern, topic, agents, settings)
+- `council/domain-context.md` -- project knowledge assembled from your documents or codebase
+- `Sessions/<topic-slug>/` -- round logs and final output land here during the run
+
+See [User project artifacts](#user-project-artifacts-generated) for the full list.
 
 ## Layout
 

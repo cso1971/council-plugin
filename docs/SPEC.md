@@ -313,7 +313,7 @@ Seven pattern files in `references/patterns/`, each defining:
 | HITL checkpoints | Type A (round review), Type B (deadlock), Type C (plan approval) |
 | Output mapping | Which output template to use and how to fill it |
 
-The critical design: coordinator and teammate prompt templates use protocol variable placeholders (`{{VOTE_OPTIONS}}`, `{{CONSENSUS_RULE}}`, `{{REJECTION_RULE}}`, `{{RESPONSE_FORMAT}}`, `{{BEHAVIORAL_RULES}}`) instead of embedding specific vote semantics. Protocol injection happens at generation time.
+The critical design: coordinator and teammate prompt templates use protocol variable placeholders (`{{VOTE_OPTIONS}}`, `{{CONSENSUS_RULE}}`, `{{REJECTION_RULE}}`, `{{OUTPUT_FORMATS}}`, `{{RESPONSE_FORMAT_EXAMPLE}}`, `{{BEHAVIORAL_RULES}}`) instead of embedding specific vote semantics. Protocol injection happens at generation time.
 
 ### 4.2 Protocol files (interaction rules)
 

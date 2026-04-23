@@ -52,6 +52,9 @@
  *
  * references/recommender/questions.md
  *   - File must exist and contain a ## Q1 section
+ *
+ * plugin.json sync
+ *   - plugin.json (repo root) and .claude-plugin/plugin.json must have identical content
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -300,6 +303,16 @@ function validateRecommender() {
   if (!body.includes("## Q1")) throw new Error("Recommender must include Q1 section");
 }
 
+function validatePluginJsonSync() {
+  const root1 = path.join(root, "plugin.json");
+  const root2 = path.join(root, ".claude-plugin", "plugin.json");
+  if (!fs.existsSync(root1)) throw new Error("Missing plugin.json at repo root");
+  if (!fs.existsSync(root2)) throw new Error("Missing .claude-plugin/plugin.json");
+  const a = JSON.stringify(JSON.parse(fs.readFileSync(root1, "utf8")));
+  const b = JSON.stringify(JSON.parse(fs.readFileSync(root2, "utf8")));
+  if (a !== b) throw new Error("plugin.json and .claude-plugin/plugin.json are out of sync — update both files together");
+}
+
 try {
   validatePatterns();
   validateArchetypes();
@@ -307,6 +320,7 @@ try {
   validateTemplates();
   validateOutputTemplates();
   validateRecommender();
+  validatePluginJsonSync();
   console.log("validate-references: OK");
 } catch (e) {
   console.error(e.message || e);

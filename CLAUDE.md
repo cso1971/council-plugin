@@ -13,8 +13,8 @@ Describe what you need. The plugin handles pattern selection, agent composition,
 
 ### Must reads
 
-- `SPEC.md` - This is the north-star. The ultimate specification of the plugin.
-- `TODO.md` - This is the list of tasks to complete the plugin. Review it to plan in advance when you make changes.
+- `docs/SPEC.md` - This is the north-star. The ultimate specification of the plugin.
+- `docs/TODO.md` - This is the list of tasks to complete the plugin. Review it to plan in advance when you make changes.
 
 ### Optional reads
 

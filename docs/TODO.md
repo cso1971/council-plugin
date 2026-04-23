@@ -176,7 +176,7 @@ graph TD
 
 ### T07: Parameterize pattern coordinator/teammate templates with protocol variables
 
-**Description**: In each pattern's coordinator and teammate prompt templates, replace hardcoded vote semantics with protocol variable placeholders: `{{VOTE_OPTIONS}}`, `{{CONSENSUS_RULE}}`, `{{REJECTION_RULE}}`, `{{RESPONSE_FORMAT}}`, `{{BEHAVIORAL_RULES}}`. This decouples patterns from specific protocol details.
+**Description**: In each pattern's coordinator and teammate prompt templates, replace hardcoded vote semantics with protocol variable placeholders: `{{VOTE_OPTIONS}}`, `{{CONSENSUS_RULE}}`, `{{REJECTION_RULE}}`, `{{OUTPUT_FORMATS}}`, `{{RESPONSE_FORMAT_EXAMPLE}}`, `{{BEHAVIORAL_RULES}}`. This decouples patterns from specific protocol details.
 
 **Files**:
 - All 7 files in `references/patterns/`
