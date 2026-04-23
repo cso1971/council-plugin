@@ -75,11 +75,11 @@ graph TD
 - [x] Each tech persona has valid YAML frontmatter with all required fields: `id`, `name`, `category: tech`, `domains`, `fits_patterns`, `domain-context-sections`
 - [x] All 10 mandatory sections present in each persona (see SPEC.md section 3.1)
 - [x] Domain-specific content (e.g., distributed-playground references) stripped from persona files
-- [ ] `validate-references` passes after T14
+- [x] `validate-references` passes after T14
 
 **Depends on**: T01
 
-**Status**: DONE (pending T14 for validate-references)
+**Status**: DONE
 
 ---
 
@@ -95,7 +95,7 @@ graph TD
 - [x] `category: business` in frontmatter for each
 - [x] `domain-context-sections` added to each persona's frontmatter, matching the vocabulary in SPEC.md section 3.3
 - [x] Existing content (Role description, Baseline skill, Typical questions, Customization slots) preserved
-- [ ] `validate-references` passes after T14
+- [x] `validate-references` passes after T14
 
 **Depends on**: T01
 
@@ -166,11 +166,11 @@ graph TD
 **Acceptance criteria**:
 - [x] All 7 pattern files have `default_protocol` in YAML frontmatter
 - [x] Values match SPEC.md section 4.3 table exactly
-- [ ] `validate-references` checks this field after T14
+- [x] `validate-references` checks this field after T14
 
 **Depends on**: T04
 
-**Status**: DONE (pending T14 for validate-references)
+**Status**: DONE
 
 ---
 
@@ -327,14 +327,16 @@ graph TD
 - `scripts/validate-references.mjs`
 
 **Acceptance criteria**:
-- [ ] Validates `references/personas/` (renamed from `role-archetypes`): required frontmatter fields (`id`, `name`, `category`, `domains`, `fits_patterns`, `domain-context-sections`), all 10 mandatory sections present
-- [ ] Validates `references/protocols/` (new): required sections (Configuration, Vote Semantics, Response Format, Consensus Rules, Escalation Rules, Deliberative Cycle, Output Formats, Behavioral Rules)
-- [ ] Validates `references/templates/` (new): required template variables present per SPEC.md section 4.4
-- [ ] Validates `default_protocol` field in pattern frontmatter
-- [ ] No reference to `role-archetypes` in the script
-- [ ] `npm run validate:references` passes on valid files and fails on missing required sections
+- [x] Validates `references/personas/` (renamed from `role-archetypes`): required frontmatter fields (`id`, `name`, `category`, `domains`, `fits_patterns`, `domain-context-sections`), all 10 mandatory sections present
+- [x] Validates `references/protocols/` (new): required sections (Configuration, Vote Semantics, Response Format, Consensus Rules, Escalation Rules, Deliberative Cycle, Output Formats, Behavioral Rules)
+- [x] Validates `references/templates/` (new): required template variables present per SPEC.md section 4.4
+- [x] Validates `default_protocol` field in pattern frontmatter
+- [x] No reference to `role-archetypes` in the script
+- [x] `npm run validate:references` passes on valid files and fails on missing required sections
 
 **Depends on**: T01, T04, T05
+
+**Status**: DONE
 
 ---
 
