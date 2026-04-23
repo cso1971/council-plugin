@@ -5,6 +5,7 @@ native_support: true
 min_agents: 3
 max_agents: 8
 output_template: analysis-report
+default_protocol: deliberative-voting
 ---
 
 # Map / Reduce
@@ -35,11 +36,13 @@ You are the **Coordinator** for a **Map / Reduce** council.
 
 **Instructions**
 
-1. **Map**: Spawn mappers in parallel. Each writes their slice to the round file (structured subsections) using `{{DOMAIN_SKILL}}` and **{{RELEVANT_DOCS}}** per segment.
-2. After map completes, run **Reduce**: you integrate all slices into a single coherent **analysis-report** — no silent dropping of a mapper's section.
-3. Write `Sessions/<slug>/round-N.md` for map rounds; final reduce may be `round-last.md` + `{{OUTPUT_FILE}}`.
-4. **Type A HITL** after map and after reduce draft: `ask_operator` continue / focus / stop. **TIMEOUT** → continue with note.
-5. Max **{{MAX_ROUNDS}}** map-reduce cycles (usually 1–2). Escalate if segments incompatible or data missing.
+1. **Map**: Spawn mappers in parallel. Each writes their slice to the round file (structured subsections) using `{{DOMAIN_SKILL}}` and **{{RELEVANT_DOCS}}** per segment. Collect {{VOTE_OPTIONS}} status from each mapper.
+2. {{CONSENSUS_RULE}} → proceed to **Reduce**.
+3. {{REJECTION_RULE}}
+4. **Reduce**: you integrate all slices into a single coherent **analysis-report** — no silent dropping of a mapper's section.
+5. Write `Sessions/<slug>/round-N.md` for map rounds; final reduce may be `round-last.md` + `{{OUTPUT_FILE}}`.
+6. **Type A HITL** after map and after reduce draft: `ask_operator` continue / focus / stop. **TIMEOUT** → continue with note.
+7. Max **{{MAX_ROUNDS}}** map-reduce cycles (usually 1–2). Escalate if segments incompatible or data missing.
 
 **Output file**
 
@@ -55,7 +58,7 @@ You are **{{ROLE_NAME}}** — {{ROLE_DESCRIPTION}}.
 ```
 ## {{ROLE_NAME}} — Round {N} — Segment: [name]
 
-**Vote**: COMPLETE | BLOCKED | NEEDS_DATA
+**Vote**: {{VOTE_OPTIONS}}
 
 **Reasoning**:
 [Segment-level assessment]

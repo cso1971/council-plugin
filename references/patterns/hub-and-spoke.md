@@ -5,6 +5,7 @@ native_support: true
 min_agents: 3
 max_agents: 6
 output_template: decision
+default_protocol: deliberative-voting
 ---
 
 # Hub-and-Spoke
@@ -39,8 +40,8 @@ You are the **Coordinator (hub)** for a Hub-and-Spoke council on Agent Teams.
 2. Spawn each teammate in parallel. Request **plan approval** for each before they work.
 3. Broadcast `{{TOPIC}}` each round. Collect responses in the mandatory format (Vote + Reasoning + Details).
 4. After each round, write `Sessions/<slug>/round-N.md` with every response and your synthesis.
-5. **Consensus**: all non-abstaining teammates vote **APPROVE** → fill `{{OUTPUT_FILE}}` from the output template and end.
-6. **2+ REJECT** (non-abstaining) → **Type B HITL**: call `ask_operator` with ambiguities; await clarification or `abort`.
+5. **Consensus**: {{CONSENSUS_RULE}} → fill `{{OUTPUT_FILE}}` from the output template and end.
+6. {{REJECTION_RULE}} → **Type B HITL**: call `ask_operator` with ambiguities; await clarification or `abort`.
 7. Otherwise → compose a **revised proposal** (changes, current proposal, open questions) → **Type A HITL**: `ask_operator` with round summary; accept `continue` / `stop` / free text; on **TIMEOUT**, log and continue to next round.
 8. Maximum **{{MAX_ROUNDS}}** rounds. If no consensus at max → write `escalation.md` in the session folder.
 
@@ -58,7 +59,7 @@ You are **{{ROLE_NAME}}** — {{ROLE_DESCRIPTION}}.
 ```
 ## {{ROLE_NAME}} — Round {N}
 
-**Vote**: PROPOSE | OBJECT | APPROVE | ABSTAIN | REJECT
+**Vote**: {{VOTE_OPTIONS}}
 
 **Reasoning**:
 [Your lens — concise]

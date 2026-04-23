@@ -164,11 +164,13 @@ graph TD
 - `references/patterns/builder-validator.md` -- `default_protocol: deliberative-voting`
 
 **Acceptance criteria**:
-- [ ] All 7 pattern files have `default_protocol` in YAML frontmatter
-- [ ] Values match SPEC.md section 4.3 table exactly
+- [x] All 7 pattern files have `default_protocol` in YAML frontmatter
+- [x] Values match SPEC.md section 4.3 table exactly
 - [ ] `validate-references` checks this field after T14
 
 **Depends on**: T04
+
+**Status**: DONE (pending T14 for validate-references)
 
 ---
 
@@ -180,12 +182,14 @@ graph TD
 - All 7 files in `references/patterns/`
 
 **Acceptance criteria**:
-- [ ] No pattern file contains hardcoded vote option lists (e.g., `PROPOSE | OBJECT | APPROVE | ABSTAIN | REJECT` as literal text in templates)
-- [ ] All coordinator prompt templates use `{{VOTE_OPTIONS}}`, `{{CONSENSUS_RULE}}`, `{{REJECTION_RULE}}`
-- [ ] All teammate prompt templates use `{{VOTE_OPTIONS}}`
-- [ ] Existing recommender signals, HITL checkpoints, and output mapping sections unchanged
+- [x] No pattern file contains hardcoded vote option lists (e.g., `PROPOSE | OBJECT | APPROVE | ABSTAIN | REJECT` as literal text in templates)
+- [x] All coordinator prompt templates use `{{VOTE_OPTIONS}}`, `{{CONSENSUS_RULE}}`, `{{REJECTION_RULE}}`
+- [x] All teammate prompt templates use `{{VOTE_OPTIONS}}`
+- [x] Existing recommender signals, HITL checkpoints, and output mapping sections unchanged
 
 **Depends on**: T04, T06
+
+**Status**: DONE
 
 ---
 
@@ -197,12 +201,14 @@ graph TD
 - `references/recommender/questions.md`
 
 **Acceptance criteria**:
-- [ ] Recommender question tree can route to all 7 patterns
-- [ ] No pattern is unreachable from any answer path
-- [ ] adversarial-debate and builder-validator have explicit routing (not just tie-breaker mentions)
-- [ ] Still limited to 2-3 questions maximum
+- [x] Recommender question tree can route to all 7 patterns
+- [x] No pattern is unreachable from any answer path
+- [x] adversarial-debate and builder-validator have explicit routing (not just tie-breaker mentions)
+- [x] Still limited to 2-3 questions maximum
 
 **Depends on**: none
+
+**Status**: DONE
 
 ---
 
@@ -214,20 +220,22 @@ graph TD
 - `skills/council-wizard/SKILL.md`
 
 **Acceptance criteria**:
-- [ ] SKILL.md has exactly 5 phases matching SPEC.md section 5
-- [ ] Phase 1: scenario intake + context discovery (business docs OR codebase scan)
-- [ ] Phase 2: pattern + protocol selection (hybrid recommender)
-- [ ] Phase 3: agent composition (library match + dynamic generation)
-- [ ] Phase 4: HITL confirmation (inline only, no configuration needed)
-- [ ] Phase 5: generate all artifacts + launch offer (scaffold logic embedded)
-- [ ] References `references/personas/`, `references/protocols/`, `references/templates/`
-- [ ] No reference to `council-scaffold` as a separate skill
-- [ ] Agent files generated at `.claude/agents/` not `council/agents/`
-- [ ] Works for both business and tech scenarios (not "non-technical" only)
-- [ ] Cowork-first language (inline HITL as default)
-- [ ] Handles failure modes from SPEC.md section 12: empty `Docs/`, skill-creator failure (retry + archetype fallback)
+- [x] SKILL.md has exactly 5 phases matching SPEC.md section 5
+- [x] Phase 1: scenario intake + context discovery (business docs OR codebase scan)
+- [x] Phase 2: pattern + protocol selection (hybrid recommender)
+- [x] Phase 3: agent composition (library match + dynamic generation)
+- [x] Phase 4: HITL confirmation (inline only, no configuration needed)
+- [x] Phase 5: generate all artifacts + launch offer (scaffold logic embedded)
+- [x] References `references/personas/`, `references/protocols/`, `references/templates/`
+- [x] No reference to `council-scaffold` as a separate skill
+- [x] Agent files generated at `.claude/agents/` not `council/agents/`
+- [x] Works for both business and tech scenarios (not "non-technical" only)
+- [x] Cowork-first language (inline HITL as default)
+- [x] Handles failure modes from SPEC.md section 12: empty `Docs/`, skill-creator failure (retry + archetype fallback)
 
 **Depends on**: T02, T03, T05, T07, T08
+
+**Status**: DONE
 
 ---
 

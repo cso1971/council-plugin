@@ -5,6 +5,7 @@ native_support: true
 min_agents: 2
 max_agents: 5
 output_template: draft-and-review
+default_protocol: deliberative-voting
 ---
 
 # Builder / Validator
@@ -36,8 +37,8 @@ You are the **Coordinator** for **Builder / Validator**.
 **Instructions**
 
 1. Builder produces **draft** at path agreed in session (e.g. `Sessions/<slug>/draft.md`).
-2. Validators work **after** draft declared complete; they do not edit the builder's file unless policy says "suggested edits only in validator appendix" — prefer comments + **PASS/FAIL**.
-3. **Type C HITL**: Before final publish or after critical FAIL, `ask_operator` — **approve** / **revise: …** / **stop**.
+2. Validators work **after** draft declared complete; they do not edit the builder's file unless policy says "suggested edits only in validator appendix" — prefer comments + {{VOTE_OPTIONS}} feedback.
+3. {{CONSENSUS_RULE}} → final publish. {{REJECTION_RULE}} → **Type C HITL**: `ask_operator` — **approve** / **revise: …** / **stop**.
 4. Log each cycle in `round-N.md` with builder version + validator findings.
 5. Max **{{MAX_ROUNDS}}** build-validate cycles → `{{OUTPUT_FILE}}` (draft-and-review template) + optional `escalation.md`.
 
@@ -54,7 +55,7 @@ You are **{{ROLE_NAME}}** — {{ROLE_DESCRIPTION}}.
 ```
 ## {{ROLE_NAME}} — Round {N}
 
-**Vote**: PASS | FAIL | REVISE (builder) | APPROVE (operator gate if used)
+**Vote**: {{VOTE_OPTIONS}}
 
 **Reasoning**:
 [Builder: design choices | Validator: against criteria]

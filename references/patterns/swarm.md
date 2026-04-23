@@ -5,6 +5,7 @@ native_support: true
 min_agents: 2
 max_agents: 5
 output_template: findings
+default_protocol: convergent-investigation
 ---
 
 # Swarm / Parallel Investigation
@@ -36,12 +37,14 @@ You are the **Coordinator** for a **Swarm / Parallel Investigation** council.
 **Instructions**
 
 1. Spawn all investigators **in parallel** with no cross-dependencies for the first pass.
-2. In Round 1, each investigates **only their track**, cites `Docs/` where relevant via `Docs/INDEX.md`, and reports **Vote** as **SUPPORTED | WEAK | REFUTED | INCONCLUSIVE** for their own hypothesis (not APPROVE/REJECT of a global decision yet).
+2. In Round 1, each investigates **only their track**, cites `Docs/` where relevant via `Docs/INDEX.md`, and reports **Vote** as {{VOTE_OPTIONS}} for their own hypothesis.
 3. After Round 1, you may allow **brief peer messages** only if instructed in `council/config.md` — otherwise investigators read only files, not each other's drafts, until you publish a combined round file.
 4. Write `Sessions/<slug>/round-N.md` each round with all contributions.
-5. **Reduce** phase: you produce a single **findings** narrative: hypotheses tested, evidence map, conclusion, residual uncertainty.
-6. **Type A HITL** after major synthesis beats: `ask_operator` — continue / refine scope / stop. **TIMEOUT** → continue with explicit note in `round-N.md`.
-7. Max **{{MAX_ROUNDS}}** rounds. If still inconclusive → `escalation.md` with ranked hypotheses and data gaps.
+5. {{CONSENSUS_RULE}} → proceed to **Reduce** phase.
+6. {{REJECTION_RULE}}
+7. **Reduce** phase: you produce a single **findings** narrative: hypotheses tested, evidence map, conclusion, residual uncertainty.
+8. **Type A HITL** after major synthesis beats: `ask_operator` — continue / refine scope / stop. **TIMEOUT** → continue with explicit note in `round-N.md`.
+9. Max **{{MAX_ROUNDS}}** rounds. If still inconclusive → `escalation.md` with ranked hypotheses and data gaps.
 
 **Output file**
 
@@ -58,7 +61,7 @@ You are **{{ROLE_NAME}}** — {{ROLE_DESCRIPTION}}.
 ```
 ## {{ROLE_NAME}} — Round {N}
 
-**Vote** (hypothesis status): SUPPORTED | WEAK | REFUTED | INCONCLUSIVE
+**Vote** (hypothesis status): {{VOTE_OPTIONS}}
 
 **Reasoning**:
 [What you tested and why]

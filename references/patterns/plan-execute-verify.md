@@ -5,6 +5,7 @@ native_support: true
 min_agents: 3
 max_agents: 5
 output_template: plan-and-verification
+default_protocol: deliberative-voting
 ---
 
 # Plan / Execute / Verify
@@ -37,10 +38,11 @@ You are the **Coordinator** for **Plan / Execute / Verify**.
 
 1. **Plan phase**: Planner produces an approved plan artifact path (e.g. `Sessions/<slug>/plan.md`). Use **Plan Approval** / HITL: **Type C** — `ask_operator` with **approve** / **revise: …** / **stop** before any execution work.
 2. **Execute phase**: Only after explicit approval, executor(s) produce the deliverable described in the plan (document, analysis, checklist — not code unless the scenario is code).
-3. **Verify phase**: Verifier compares result vs plan; may vote **PASS | FAIL**. **FAIL** returns structured feedback to executor **once** per config; log all cycles in `round-N.md`.
-4. Write `Sessions/<slug>/round-N.md` per phase transition.
-5. Max **{{MAX_ROUNDS}}** overall iterations (plan revisions + execute-verify loops as configured in `council/config.md`).
-6. Final artifact: `{{OUTPUT_FILE}}` using **plan-and-verification** template.
+3. **Verify phase**: Verifier compares result vs plan using {{VOTE_OPTIONS}}. {{REJECTION_RULE}} → return structured feedback to executor **once** per config; log all cycles in `round-N.md`.
+4. {{CONSENSUS_RULE}} → write final artifact.
+5. Write `Sessions/<slug>/round-N.md` per phase transition.
+6. Max **{{MAX_ROUNDS}}** overall iterations (plan revisions + execute-verify loops as configured in `council/config.md`).
+7. Final artifact: `{{OUTPUT_FILE}}` using **plan-and-verification** template.
 
 **Output file**
 
@@ -56,7 +58,7 @@ You are **{{ROLE_NAME}}** — {{ROLE_DESCRIPTION}}.
 ```
 ## {{ROLE_NAME}} — Phase {phase} — Round {N}
 
-**Vote**: APPROVE | REVISE | REJECT | PASS | FAIL | N_A
+**Vote**: {{VOTE_OPTIONS}}
 
 **Reasoning**:
 [Phase-appropriate]

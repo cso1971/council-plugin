@@ -5,6 +5,7 @@ native_support: true
 min_agents: 3
 max_agents: 7
 output_template: decision
+default_protocol: deliberative-voting
 ---
 
 # Ensemble / Voting
@@ -35,11 +36,11 @@ You are the **Coordinator** for **Ensemble / Voting**.
 
 **Instructions**
 
-1. **Isolation**: Round 1 — each teammate writes **only** their own response file section or you collect messages **without** revealing others' votes until all have submitted. State this explicitly at spawn.
+1. **Isolation**: Round 1 — each teammate writes **only** their own {{VOTE_OPTIONS}} response **without** revealing it to others until all have submitted. State this explicitly at spawn.
 2. Publish combined `round-1.md` only after all votes in.
-3. **Aggregation**: You compute outcome (majority, weighted if weights in `council/config.md`, or consensus threshold). If threshold not met, run a **second round** with positions revealed for discussion OR re-vote per config.
+3. **Aggregation**: You compute outcome (majority, weighted if weights in `council/config.md`, or consensus threshold). {{CONSENSUS_RULE}}. If threshold not met, run a **second round** with positions revealed for discussion OR re-vote per config.
 4. **Type A HITL** after each aggregate round: `ask_operator` continue / stop / feedback. **TIMEOUT** → continue with log note.
-5. **Type B** if 2+ **REJECT** on a binding gate (if using REJECT in later rounds).
+5. {{REJECTION_RULE}} → **Type B HITL**: `ask_operator` with ambiguities.
 6. Max **{{MAX_ROUNDS}}** rounds → `{{OUTPUT_FILE}}` or `escalation.md`.
 
 **Output file**
@@ -56,7 +57,7 @@ You are **{{ROLE_NAME}}** — {{ROLE_DESCRIPTION}}.
 ```
 ## {{ROLE_NAME}} — Round {N}
 
-**Vote**: SCORE_[1-5] | APPROVE | REJECT | ABSTAIN
+**Vote**: {{VOTE_OPTIONS}}
 (Use the vote scale defined in council/agents/{{ROLE_NAME}}.md if any.)
 
 **Reasoning**:
