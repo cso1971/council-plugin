@@ -266,13 +266,15 @@ graph TD
 - `skills/council-launch/SKILL.md`
 
 **Acceptance criteria**:
-- [ ] No reference to `council/agents/` in the file
-- [ ] All agent paths use `.claude/agents/`
-- [ ] Precondition checks reference `.claude/agents/coordinator.md` and `.claude/agents/<slug>.md`
-- [ ] Kickoff prompt structure references `.claude/agents/` paths
-- [ ] Handles launch-time failure modes from SPEC.md section 12: missing scaffold files (explicit error), Agent Teams unavailability (surface clear error + guidance)
+- [x] No reference to `council/agents/` in the file
+- [x] All agent paths use `.claude/agents/`
+- [x] Precondition checks reference `.claude/agents/coordinator.md` and `.claude/agents/<slug>.md`
+- [x] Kickoff prompt structure references `.claude/agents/` paths
+- [x] Handles launch-time failure modes from SPEC.md section 12: missing scaffold files (explicit error), Agent Teams unavailability (surface clear error + guidance)
 
 **Depends on**: T09
+
+**Status**: DONE
 
 ---
 

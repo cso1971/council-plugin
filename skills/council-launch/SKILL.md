@@ -1,6 +1,6 @@
 ---
 name: council-launch
-description: Composes the Agent Teams kickoff prompt from council/config.md and agent files; defines round logging, HITL, and output paths (no custom runtime).
+description: Composes the Agent Teams kickoff prompt from council/config.md and .claude/agents/ files; defines round logging, HITL, and output paths (no custom runtime).
 ---
 
 # Council — Launch (Agent Teams kickoff)
@@ -12,12 +12,14 @@ You **do not** execute a runtime. You **compose** a single, **self-contained** n
 ## Preconditions (verify)
 
 - `council/config.md` exists.
-- `council/agents/coordinator.md` exists.
-- At least one `council/agents/<slug>.md` teammate file exists.
+- `.claude/agents/coordinator.md` exists.
+- At least one `.claude/agents/<slug>.md` teammate file exists.
 - For each agent, `.claude/skills/<slug>/SKILL.md` exists **or** coordinator text embeds skill path and tells teammates to read it.
 - Pattern file exists at `references/patterns/<pattern_id>.md` (read coordinator/teammate templates if you need to echo constraints).
 
-If missing → **stop** with explicit error listing missing paths and *"Re-run council-wizard."*
+If any file is missing → **stop** with explicit error listing every missing path and *"Re-run council-wizard to regenerate the missing files."*
+
+If Agent Teams tools (e.g. `TeamCreate`) are unavailable → **stop** with: *"Agent Teams is not available. Check that you are using a Claude Code plan or mode that includes Agent Teams, then try again."*
 
 ---
 
@@ -55,8 +57,8 @@ Produce a markdown block the user can copy.
 
 1. **Topic** — verbatim from config.
 2. **Pattern** — id + one sentence what it implies for orchestration.
-3. **Coordinator** — instruct lead to read `council/agents/coordinator.md` and follow it literally.
-4. **Teammates** — bullet list: display name + `council/agents/<slug>.md` path; say: spawn **in parallel** per pattern, **plan approval** for each teammate before substantive work (Agent Teams native).
+3. **Coordinator** — instruct lead to read `.claude/agents/coordinator.md` and follow it literally.
+4. **Teammates** — bullet list: display name + `.claude/agents/<slug>.md` path; say: spawn **in parallel** per pattern, **plan approval** for each teammate before substantive work (Agent Teams native).
 5. **HITL mode** — `telegram`: use MCP tool **`ask_operator`** at checkpoints; `inline`: ask user in chat with same prompt text / expected replies (`continue`, `stop`, `approve`, `revise: …`, etc.).
 6. **Paths** — `Sessions/<slug>/round-N.md` for each round synthesis; final output path; `escalation.md` if max rounds without consensus.
 7. **Execution constraints** — `max_rounds` from config; consensus = all APPROVE (non-abstaining) unless pattern file defines variant; **2+ REJECT** → Type B; else Type A round review; plan/artifact gates → Type C per pattern docs.
