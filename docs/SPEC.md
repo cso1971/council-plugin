@@ -179,8 +179,8 @@ The templates (`references/templates/*.tmpl`) define the structural skeleton and
 The plugin generates static files. Agent Teams is the only runtime:
 
 1. **Wizard** generates `.claude/agents/*.md`, `council/config.md`, `council/domain-context.md`, and optional skills
-2. **Agent Teams** discovers agents from `.claude/agents/`, spawns coordinator as lead
-3. **Coordinator** reads its agent file, spawns teammates, runs the deliberative cycle (Phase 1)
+2. **`council-launch`** reads config and agent files, resolves runtime variables (`{{TOPIC}}`, `{{TOPIC_SLUG}}`), and calls `TeamCreate` with the coordinator as lead
+3. **Coordinator** reads its agent file (passed at team creation with runtime variables resolved), spawns teammates, runs the deliberative cycle (Phase 1)
 4. **Teammates** respond using the protocol format embedded in their agent files
 5. **Round logs** and **final output draft** are written to `Sessions/<slug>/`
 6. **Coordinator** runs the Devil's Advocate review (Phase 2) if enabled: spawns the Devil's Advocate, feeds it the Phase 1 output, consolidates challenges, overwrites the final output with the consolidated version, writes `devils-advocate-review.md`
@@ -526,16 +526,13 @@ Writes all artifacts. No separate skill invocation needed. The `council-scaffold
 
 ### 6.2 Launch (`council-launch` skill)
 
-- Reads `council/config.md` and `.claude/agents/*.md` (canonical path).
-- Verifies preconditions: all referenced files exist, protocol variables resolved.
+- Verifies preconditions: `council/config.md`, `.claude/agents/coordinator.md`, teammate files, `TeamCreate` availability.
 - Creates `Sessions/<topic-slug>/` with `config-snapshot.md` (frozen config copy).
-- Composes the Agent Teams kickoff prompt:
-  - Topic, pattern, coordinator instructions (from `.claude/agents/coordinator.md`)
-  - Teammate list with spawn instructions
-  - Inline HITL checkpoint behavior
-  - Output paths and template reference
-  - Execution constraints (max rounds, consensus/rejection rules)
-  - Output style (brief/standard/detailed) and its implications
+- Resolves output filename and template path from pattern `output_template` and `output_style`.
+- Reads `.claude/agents/coordinator.md` and substitutes the two runtime variables: `{{TOPIC}}` and `{{TOPIC_SLUG}}`.
+- Prepends a **launch preamble** (session path, output file, output template, output style implications) to the resolved coordinator instructions.
+- Calls `TeamCreate` with `council-<topic-slug>` as team name and the coordinator (preamble + resolved instructions) as lead agent.
+- The coordinator takes over from Step 1 (spawn teammates) onwards.
 
 ### 6.3 Run (Agent Teams native)
 

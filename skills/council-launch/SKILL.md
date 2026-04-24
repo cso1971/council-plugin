@@ -1,11 +1,11 @@
 ---
 name: council-launch
-description: Composes the Agent Teams kickoff prompt from council/config.md and .claude/agents/ files; defines round logging, HITL, and output paths (no custom runtime).
+description: Launches the council via Agent Teams -- prepares the session folder, resolves runtime variables, and starts the team with the coordinator as lead.
 ---
 
-# Council — Launch (Agent Teams kickoff)
+# Council — Launch (Agent Teams)
 
-You **do not** execute a runtime. You **compose** a single, **self-contained** natural-language instruction the user pastes into **Claude Code Agent Teams** (lead session). Assume **no memory** from the wizard.
+You **launch** the council. Verify preconditions, prepare the session folder, resolve runtime variables, then start an Agent Teams session by calling `TeamCreate` with the coordinator as lead. Assume **no memory** from the wizard.
 
 ---
 
@@ -48,43 +48,44 @@ If Agent Teams tools (e.g. `TeamCreate`) are unavailable → **stop** with: *"Ag
    - `brief` → `references/output-templates/<output_template>-brief.md`
    - `standard` | `detailed` → `references/output-templates/<output_template>.md`
 
-   Embed or attach the resolved template into the kickoff so the team sees the required headings and word caps.
+   This path and template are included in the launch preamble so the coordinator knows the required headings and word caps.
 
 ---
 
-## Kickoff prompt structure (must include all)
+## Resolve and Launch
 
-Produce a markdown block the user can copy.
+1. **Read `council/config.md`** — extract `topic`, `pattern`, `max_rounds`, `output_style`, `devils_advocate` (defaults to `true` if absent), and the `agents` list.
 
-1. **Topic** — verbatim from config.
-2. **Pattern** — id + one sentence what it implies for orchestration.
-3. **Coordinator** — instruct lead to read `.claude/agents/coordinator.md` and follow it literally.
-4. **Teammates** — bullet list: display name + `.claude/agents/<slug>.md` path; say: spawn **in parallel** per pattern, **plan approval** for each teammate before substantive work (Agent Teams native).
-5. **HITL mode** — inline: ask user in chat with prompt text / expected replies (`continue`, `stop`, `approve`, `revise: …`, etc.).
-6. **Paths** — `Sessions/<slug>/round-N.md` for each round synthesis; final output path; `escalation.md` if max rounds without consensus; `devils-advocate-review.md` if `devils_advocate: true`.
-7. **Execution constraints** — `max_rounds` from config; consensus = all APPROVE (non-abstaining) unless pattern file defines variant; **2+ REJECT** → Type B; else Type A round review; plan/artifact gates → Type C per pattern docs.
-8. **Vote + Reasoning + Details** — require standard teammate response format from coordinator template.
-9. **Tooling guardrail** — teammates must **not** use disallowed team tools; only lead orchestrates.
-10. **Output style** — state the `output_style` from config and its implications:
-    - `brief`: each teammate response ≤120 words; coordinator synthesis in `round-N.md` is a vote table + 3-5 bullets (no narrative); final output uses the `-brief.md` template verbatim with its word caps.
-    - `standard`: full narrative sections per response; coordinator synthesis includes agreements/objections/revised-proposal prose; final output uses the base template.
-    - `detailed`: like `standard` but encourage extended reasoning and per-section depth; same base template.
-11. **Devil's Advocate review** — if `devils_advocate: true` (or absent) in config: after Phase 1 concludes, the coordinator will run a post-deliberation review (Step 4 in `.claude/agents/coordinator.md`). The coordinator will ask the operator inline whether to proceed or skip. The Devil's Advocate agent is at `.claude/agents/devils-advocate.md` — do not spawn it during Phase 1. If `devils_advocate: false`: no post-deliberation review; the coordinator stops after Step 3.
+2. **Derive `<topic-slug>`** — same kebab-case slug used for the session folder above.
+
+3. **Read `.claude/agents/coordinator.md`** and substitute the two runtime variables:
+   - `{{TOPIC}}` → verbatim topic string from config
+   - `{{TOPIC_SLUG}}` → the derived slug
+
+4. **Compose a launch preamble** to prepend to the resolved coordinator instructions:
+
+   ```
+   ## Session Context (injected at launch)
+   - Session path: Sessions/<topic-slug>/
+   - Output file: Sessions/<topic-slug>/<output-filename>.md
+   - Output template: <resolved-template-path>
+   - Output style: <brief|standard|detailed>
+     - brief: teammate responses ≤120 words; round-N.md is a vote table + 3-5 bullets; final output uses the -brief.md template with its word caps.
+     - standard: full narrative sections; coordinator synthesis includes agreements/objections/revised-proposal prose; final output uses the base template.
+     - detailed: like standard but encourage extended reasoning; same base template.
+   ```
+
+5. **Call `TeamCreate`** with:
+   - Team name: `council-<topic-slug>`
+   - Lead agent instructions: launch preamble + resolved coordinator instructions (from steps 3–4)
+
+6. **Done.** The coordinator is now the lead agent and will proceed from Step 1 (spawn teammates) as described in `.claude/agents/coordinator.md`.
 
 ---
 
-## Round cycle (document inside kickoff)
+## HITL
 
-1. Teammates respond (parallel where applicable).
-2. Coordinator writes `round-N.md` with all responses + synthesis.
-3. Apply consensus / REJECT / else revised proposal + HITL.
-4. At `max_rounds` without consensus → `escalation.md`.
-
----
-
-## Operator message formats (HITL)
-
-Use business-friendly summaries.
+All HITL checkpoints are inline — the coordinator asks the operator directly in the active session. No additional setup required.
 
 ---
 

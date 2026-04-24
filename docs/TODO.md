@@ -477,6 +477,47 @@ graph TD
 
 ---
 
+### T21: Rewrite `council-launch` to call `TeamCreate` directly
+
+**Description**: The skill currently composes a markdown kickoff prompt the user must paste into an Agent Teams session. Rewrite it to instead call `TeamCreate` directly, passing the coordinator (with runtime variables resolved) as the lead agent. The coordinator then takes over from Step 1 as usual.
+
+**Files modified**:
+- `skills/council-launch/SKILL.md` -- replace "Kickoff prompt structure" section with "Resolve and Launch"; update description and opening paragraph; remove "Round cycle" section (already in coordinator file)
+- `docs/SPEC.md` -- update sections 2.4 and 6.2 to reflect the new launch flow
+
+**Acceptance criteria**:
+- [x] `council-launch/SKILL.md` instructs Claude to call `TeamCreate` (not compose a paste-able prompt)
+- [x] Runtime variable substitution (`{{TOPIC}}`, `{{TOPIC_SLUG}}`) is documented in the skill
+- [x] Precondition check for `TeamCreate` availability remains
+- [x] Launch preamble (session path, output file, output style) is prepended to coordinator instructions before team creation
+- [x] "Round cycle" section removed from skill (it lives in the coordinator agent file)
+- [x] SPEC.md section 2.4 reflects `council-launch` calling `TeamCreate`
+- [x] SPEC.md section 6.2 describes the new launch flow
+
+**Depends on**: T20
+
+**Status**: DONE
+
+---
+
+### T22: Update `council-resume` to call `TeamCreate` for resumption
+
+**Description**: `council-resume` branches B (in-progress) and D (Phase 2 pending) currently compose "context packets" in the same paste-style as the old `council-launch`. Update both branches to call `TeamCreate` directly, following the same pattern established by T21. Branch B passes the coordinator with round history context; Branch D passes the coordinator starting from Step 4 only.
+
+**Files modified**:
+- `skills/council-resume/SKILL.md` -- Branch B and Branch D: replace "compose compact context packet" with `TeamCreate` invocation
+
+**Acceptance criteria**:
+- [ ] Branch B instructs Claude to call `TeamCreate` with a resume preamble (topic, pattern, round history references, "continue from Round N+1")
+- [ ] Branch D instructs Claude to call `TeamCreate` with a Phase 2 preamble (topic, Phase 1 output path, "proceed from Step 4")
+- [ ] `council-resume/SKILL.md` description updated to reflect direct launch
+
+**Depends on**: T21
+
+**Status**: TODO
+
+---
+
 ## Suggested implementation order
 
 Tasks with no dependencies can be started in parallel. A practical ordering:
