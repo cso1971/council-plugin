@@ -16,6 +16,7 @@ You **do not** execute a runtime. You **compose** a single, **self-contained** n
 - At least one `.claude/agents/<slug>.md` teammate file exists.
 - For each agent, `.claude/skills/<slug>/SKILL.md` exists **or** coordinator text embeds skill path and tells teammates to read it.
 - Pattern file exists at `references/patterns/<pattern_id>.md` (read coordinator/teammate templates if you need to echo constraints).
+- If `council/config.md` has `devils_advocate: true` (or field is absent, which defaults to true): `.claude/agents/devils-advocate.md` must exist.
 
 If any file is missing → **stop** with explicit error listing every missing path and *"Re-run council-wizard to regenerate the missing files."*
 
@@ -29,7 +30,7 @@ If Agent Teams tools (e.g. `TeamCreate`) are unavailable → **stop** with: *"Ag
 
 2. Target: `Sessions/<topic-short-slug>/`.
 
-3. **Before team work starts**, write **`Sessions/<topic-short-slug>/config-snapshot.md`** — frozen copy of `council/config.md` (audit / reproducibility).
+3. **Before team work starts**, write **`Sessions/<topic-short-slug>/config-snapshot.md`** — frozen copy of `council/config.md` (audit / reproducibility). This snapshot preserves the `devils_advocate` flag so `council-resume` can detect Phase 2 state.
 
 4. Resolve **final output filename** from pattern `output_template` mapping:
 
@@ -60,7 +61,7 @@ Produce a markdown block the user can copy.
 3. **Coordinator** — instruct lead to read `.claude/agents/coordinator.md` and follow it literally.
 4. **Teammates** — bullet list: display name + `.claude/agents/<slug>.md` path; say: spawn **in parallel** per pattern, **plan approval** for each teammate before substantive work (Agent Teams native).
 5. **HITL mode** — inline: ask user in chat with prompt text / expected replies (`continue`, `stop`, `approve`, `revise: …`, etc.).
-6. **Paths** — `Sessions/<slug>/round-N.md` for each round synthesis; final output path; `escalation.md` if max rounds without consensus.
+6. **Paths** — `Sessions/<slug>/round-N.md` for each round synthesis; final output path; `escalation.md` if max rounds without consensus; `devils-advocate-review.md` if `devils_advocate: true`.
 7. **Execution constraints** — `max_rounds` from config; consensus = all APPROVE (non-abstaining) unless pattern file defines variant; **2+ REJECT** → Type B; else Type A round review; plan/artifact gates → Type C per pattern docs.
 8. **Vote + Reasoning + Details** — require standard teammate response format from coordinator template.
 9. **Tooling guardrail** — teammates must **not** use disallowed team tools; only lead orchestrates.
@@ -68,6 +69,7 @@ Produce a markdown block the user can copy.
     - `brief`: each teammate response ≤120 words; coordinator synthesis in `round-N.md` is a vote table + 3-5 bullets (no narrative); final output uses the `-brief.md` template verbatim with its word caps.
     - `standard`: full narrative sections per response; coordinator synthesis includes agreements/objections/revised-proposal prose; final output uses the base template.
     - `detailed`: like `standard` but encourage extended reasoning and per-section depth; same base template.
+11. **Devil's Advocate review** — if `devils_advocate: true` (or absent) in config: after Phase 1 concludes, the coordinator will run a post-deliberation review (Step 4 in `.claude/agents/coordinator.md`). The coordinator will ask the operator inline whether to proceed or skip. The Devil's Advocate agent is at `.claude/agents/devils-advocate.md` — do not spawn it during Phase 1. If `devils_advocate: false`: no post-deliberation review; the coordinator stops after Step 3.
 
 ---
 

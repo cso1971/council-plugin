@@ -76,7 +76,7 @@ council-plugin/                              (this repo, installed as plugin)
       adversarial-debate-protocol.md         debate-specific rules
       convergent-investigation.md            hypothesis-driven investigation
       _custom-template.md                    user extension schema
-    personas/                                unified persona library (18 entries)
+    personas/                                unified persona library (19 entries)
       # Business personas (12)
       market-analyst.md
       legal-advisor.md
@@ -97,6 +97,8 @@ council-plugin/                              (this repo, installed as plugin)
       security-engineer.md
       devops-engineer.md
       ux-designer.md
+      # System personas (1) -- fixed, non-customizable
+      devils-advocate.md
       _custom-template.md                    user extension schema
     output-templates/                        6 templates + brief variants
     recommender/
@@ -105,6 +107,7 @@ council-plugin/                              (this repo, installed as plugin)
       coordinator.md.tmpl                    coordinator agent template
       teammate.md.tmpl                       persona agent template
       domain-context.md.tmpl                 domain context template
+      devils-advocate-review.md              Step 4 instructions injected via {{DEVILS_ADVOCATE_PHASE}}
   scripts/
     validate-references.mjs                  extended for new directories
   council-models/                            reference examples (not used by runtime)
@@ -125,6 +128,7 @@ When the wizard runs in a user project, it generates:
     agents/                                  CANONICAL agent location
       coordinator.md                         lead agent (Agent Teams reads this)
       <role-slug>.md                         one per teammate
+      devils-advocate.md                     system reviewer (generated if devils_advocate: true)
     skills/                                  OPTIONAL per-agent domain skills
       council-<role-slug>/SKILL.md           only when deep domain grounding needed
   council/
@@ -137,6 +141,7 @@ When the wizard runs in a user project, it generates:
     round-1.md ... round-N.md               round logs
     <output>.md                              final output (decision|findings|...)
     escalation.md                            if no consensus after max rounds
+    devils-advocate-review.md                challenge + resolution audit (if Phase 2 ran)
 ```
 
 Key difference from the pre-unification layout: agent files live at `.claude/agents/` (Agent Teams native discovery path) instead of `council/agents/`.
@@ -175,9 +180,10 @@ The plugin generates static files. Agent Teams is the only runtime:
 
 1. **Wizard** generates `.claude/agents/*.md`, `council/config.md`, `council/domain-context.md`, and optional skills
 2. **Agent Teams** discovers agents from `.claude/agents/`, spawns coordinator as lead
-3. **Coordinator** reads its agent file, spawns teammates, runs the deliberative cycle
+3. **Coordinator** reads its agent file, spawns teammates, runs the deliberative cycle (Phase 1)
 4. **Teammates** respond using the protocol format embedded in their agent files
-5. **Round logs** and **final output** are written to `Sessions/<slug>/`
+5. **Round logs** and **final output draft** are written to `Sessions/<slug>/`
+6. **Coordinator** runs the Devil's Advocate review (Phase 2) if enabled: spawns the Devil's Advocate, feeds it the Phase 1 output, consolidates challenges, overwrites the final output with the consolidated version, writes `devils-advocate-review.md`
 
 The same generated artifacts work identically on Cowork and CLI. No runtime differences.
 
@@ -187,7 +193,7 @@ The same generated artifacts work identically on Cowork and CLI. No runtime diff
 
 ### 3.1 Unified persona file format
 
-All 18 library personas and any dynamically generated personas follow this structure:
+All 19 library personas and any dynamically generated personas follow this structure:
 
 **YAML frontmatter:**
 
@@ -255,6 +261,14 @@ domain-context-sections: [overview, ...]
 | `ux-designer` | UX Designer | user experience, interaction design, accessibility |
 
 Note: `pm-facilitator` (business) and `product-analyst` (tech) are distinct roles. PM Facilitator focuses on scope, roadmap, success metrics, and stakeholder alignment. Product Analyst focuses on user stories, acceptance criteria, INVEST principles, and requirements decomposition.
+
+**System personas (1)** -- fixed, non-customizable; used only by the plugin itself:
+
+| ID | Name | Role |
+|----|------|------|
+| `devils-advocate` | Devil's Advocate | Post-deliberation reviewer spawned by the coordinator in Phase 2 |
+
+The Devil's Advocate is not a council participant. It is never listed in the `agents` section of `council/config.md` and never appears in the `{{TEAMMATES_TABLE}}` in the coordinator. It is spawned only during Step 4 (post-deliberation review) if `devils_advocate: true`. Its persona is pedantic by design: it challenges every conclusion for contradictions, errors, vague language, unstated assumptions, and unspecified elements.
 
 ### 3.3 Domain context sections vocabulary
 
@@ -378,6 +392,7 @@ Three template files in `references/templates/`:
 | `{{OUTPUT_FORMATS}}` | Protocol file (round/decision/rejection/escalation templates) | Generation time |
 | `{{BEHAVIORAL_RULES}}` | Protocol file | Generation time |
 | `{{CONTEXT_REFERENCES}}` | Generated list of skill references per persona | Generation time |
+| `{{DEVILS_ADVOCATE_PHASE}}` | Full contents of `references/templates/devils-advocate-review.md` (if `devils_advocate: true`) or empty string (if `devils_advocate: false`) | Generation time |
 
 **`teammate.md.tmpl`** -- generates `.claude/agents/<slug>.md`:
 
@@ -457,13 +472,16 @@ Inline HITL is the only interaction mode. The coordinator asks checkpoint questi
 
 Confirm to the user that checkpoints will appear inline during the council run and that Plan Approval (native Agent Teams) is always available.
 
+**Devil's Advocate review (Phase 2)**: The wizard confirms that a Devil's Advocate review is enabled by default. The user may opt out (not recommended). The review is fixed and non-customizable. The opt-out decision is recorded as `devils_advocate: true | false` in `council/config.md`.
+
 ### Phase 5 -- Generate and Launch Offer
 
 Generate all artifacts:
 
-- `council/config.md` (YAML frontmatter: pattern, topic, max_rounds, output_style, agents list, protocol, setup_date)
+- `council/config.md` (YAML frontmatter: pattern, topic, max_rounds, output_style, `devils_advocate`, agents list, protocol, setup_date)
 - `council/domain-context.md` (if not already present from Phase 1)
-- `.claude/agents/coordinator.md` (assembled from pattern template + protocol + teammates table)
+- `.claude/agents/coordinator.md` (assembled from pattern template + protocol + teammates table; `{{DEVILS_ADVOCATE_PHASE}}` filled from `references/templates/devils-advocate-review.md` if `devils_advocate: true`, or empty if false)
+- `.claude/agents/devils-advocate.md` (if `devils_advocate: true`; assembled from `teammate.md.tmpl` using the `devils-advocate` persona and same protocol as council; NOT listed in `{{TEAMMATES_TABLE}}`)
 - `.claude/agents/<slug>.md` per teammate (assembled from three-layer composition: protocol + persona + domain context)
 - `Docs/INDEX.md` (if `Docs/` has content)
 - `Sessions/` directory
@@ -523,18 +541,33 @@ Writes all artifacts. No separate skill invocation needed. The `council-scaffold
 
 No custom runtime. Agent Teams orchestrates:
 
-1. Coordinator spawns teammates (reads `.claude/agents/*.md`)
+**Phase 1 -- Deliberation:**
+1. Coordinator spawns teammates (reads `.claude/agents/*.md`; does NOT spawn `devils-advocate.md` yet)
 2. Teammates respond using protocol format
 3. Coordinator writes `round-N.md` after each round
 4. Inline HITL checkpoints per pattern type
-5. Consensus check -> final output, or escalation after max rounds
+5. Consensus check -> Phase 1 output file written, or escalation after max rounds
+
+**Phase 2 -- Devil's Advocate Review** (if `devils_advocate: true` in config and Phase 1 reached output):
+6. Coordinator asks operator inline: proceed with Devil's Advocate review or skip?
+7. If proceed: coordinator spawns `devils-advocate.md`, feeds it the Phase 1 output + topic
+8. Devil's Advocate challenges the output across 5 categories: contradictions, errors, vagueness, unstated assumptions, unspecified elements
+9. Coordinator addresses each challenge (accept/partially-accept/dismiss with reasoning)
+10. Coordinator overwrites the output file with the consolidated final version
+11. Coordinator writes `Sessions/<slug>/devils-advocate-review.md` (challenge + resolution audit)
+12. Coordinator appends Devil's Advocate Review subsection to the Deliberation trail
 
 ### 6.4 Resume (`council-resume` skill)
 
 - Discovers `Sessions/*/` directories
-- Detects state: completed (final output exists), in-progress (rounds but no output), escalated (`escalation.md` exists)
+- Detects state:
+  - **Completed**: final output exists AND either `config-snapshot.md` has `devils_advocate: false` OR `devils-advocate-review.md` exists
+  - **Phase 2 pending**: final output exists AND `config-snapshot.md` has `devils_advocate: true` AND no `devils-advocate-review.md` -- Phase 1 is done, Devil's Advocate review not yet run
+  - **In-progress**: `round-*.md` exists, no final output
+  - **Escalated**: `escalation.md` exists
+- For **Phase 2 pending**: surfaces Phase 1 summary, offers resume Devil's Advocate review or skip
 - For in-progress: offers resume at Round N+1 with compact context packet
-- For completed: offers new session on same council
+- For completed: optionally shows DA challenge summary if `devils-advocate-review.md` exists; offers new session on same council
 - For escalated: offers re-scaffold with adjusted scenario (wizard Phase 2+)
 - Handles partial/corrupted rounds (flag, offer discard)
 
@@ -559,6 +592,7 @@ Agent Teams native feature. Teammate actions require coordinator approval. Alway
 | **Type A -- Round review** | After any non-consensus round | Coordinator summary -> operator `continue` / `stop` / feedback / TIMEOUT auto-continue |
 | **Type B -- Clarification on deadlock** | 2+ REJECT votes | Ambiguities + clarification request via HITL |
 | **Type C -- Plan/artifact approval** | For plan-execute-verify and builder-validator patterns | Approve / revise / stop |
+| **Type DA -- Devil's Advocate gate** | After Phase 1 output is written, before Phase 2 begins | Coordinator asks: proceed with review or skip? Reply `yes` / `skip` |
 
 ---
 

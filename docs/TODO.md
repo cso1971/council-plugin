@@ -442,6 +442,41 @@ graph TD
 
 ---
 
+---
+
+### T20: Add Devil's Advocate second phase to all councils
+
+**Description**: All generated councils now include a mandatory two-phase structure. Phase 1 follows the existing generation mechanism unchanged. Phase 2 is a fixed, non-customizable Devil's Advocate review where the coordinator spawns a single Devil's Advocate agent after Phase 1 concludes, feeds it the output, collects structured challenges, and consolidates them into the final result. The user can skip Phase 2 but cannot customize it.
+
+**Files created**:
+- `references/personas/devils-advocate.md` -- static system persona (cross-functional, fits all 7 patterns)
+- `references/templates/devils-advocate-review.md` -- Step 4 coordinator instructions
+
+**Files modified**:
+- `references/templates/coordinator.md.tmpl` -- added `{{DEVILS_ADVOCATE_PHASE}}` variable after Step 3
+- `scripts/validate-references.mjs` -- added `{{DEVILS_ADVOCATE_PHASE}}` to `COORDINATOR_TEMPLATE_VARS`
+- `skills/council-wizard/SKILL.md` -- Phase 4: DA opt-out; Phase 5: `devils_advocate` config field + DA agent generation + coordinator variable; collapsed flow updated; persona count updated to 19
+- `skills/council-launch/SKILL.md` -- DA precondition check; kickoff item 11; `devils-advocate-review.md` session artifact
+- `skills/council-resume/SKILL.md` -- Phase 2 pending state detection; Branch D handling; updated Completed state definition
+- `docs/SPEC.md` -- documented Phase 2, DA persona, config field, checkpoint Type DA, runtime model, resume states, variable reference
+
+**Acceptance criteria**:
+- [x] `references/personas/devils-advocate.md` exists with all 10 mandatory sections, valid frontmatter, `category: cross-functional`, `fits_patterns` covers all 7 patterns, markdown fenced baseline skill
+- [x] `references/templates/devils-advocate-review.md` exists with Step 4.1–4.7 instructions
+- [x] `references/templates/coordinator.md.tmpl` contains `{{DEVILS_ADVOCATE_PHASE}}`
+- [x] `scripts/validate-references.mjs` includes `{{DEVILS_ADVOCATE_PHASE}}` in `COORDINATOR_TEMPLATE_VARS`
+- [x] `council/config.md` schema in wizard includes `devils_advocate: true | false`
+- [x] Wizard Phase 4 offers DA opt-out; Phase 5 conditionally generates `.claude/agents/devils-advocate.md`
+- [x] `council-launch` verifies `devils-advocate.md` exists when `devils_advocate: true`
+- [x] `council-resume` detects Phase 2 pending state and offers Branch D
+- [x] Persona count in wizard reference library updated from 18 to 19
+
+**Depends on**: T18 (all prior tasks complete)
+
+**Status**: DONE
+
+---
+
 ## Suggested implementation order
 
 Tasks with no dependencies can be started in parallel. A practical ordering:

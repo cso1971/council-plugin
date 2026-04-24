@@ -12,10 +12,11 @@ Phases are **logical steps, not mandatory sequential gates**. When the user's in
 **Reference library** (read-only, from this plugin):
 
 - Patterns: `references/patterns/*.md` (7 patterns — frontmatter: `id`, `default_protocol`, `output_template`, `min_agents`, `max_agents`)
-- Personas: `references/personas/*.md` (18 library personas + `_custom-template.md`)
+- Personas: `references/personas/*.md` (19 library personas + `_custom-template.md`)
 - Protocols: `references/protocols/*.md` (3 protocols + `_custom-template.md`)
 - Output templates: `references/output-templates/*.md` (12 files — 6 types × brief/standard)
 - Generation templates: `references/templates/coordinator.md.tmpl`, `references/templates/teammate.md.tmpl`, `references/templates/domain-context.md.tmpl`
+- Devil's Advocate review template: `references/templates/devils-advocate-review.md`
 - Recommender: `references/recommender/questions.md`
 
 ---
@@ -84,6 +85,16 @@ Confirm to the user that:
 - Coordinator checkpoint questions will appear **inline** in the chat session during the council run.
 - **Plan Approval** (native Agent Teams feature) is always available for teammate actions.
 
+### Devil's Advocate review (Phase 2)
+
+The **Devil's Advocate review** is enabled by default for all councils. After the council reaches its conclusion, a dedicated Devil's Advocate agent challenges the output for contradictions, errors, vague language, unstated assumptions, and unspecified elements. The coordinator then consolidates the challenges into the final output.
+
+- This phase is **fixed and non-customizable**: the user cannot change the Devil's Advocate persona, add reviewers, or modify the review protocol.
+- The user **may opt out**: ask *"Skip the Devil's Advocate review? (not recommended)"* and record their answer.
+- Default if the user does not answer: **enabled**.
+
+Set `devils_advocate: true` (default) or `devils_advocate: false` (opt-out) for use in Phase 5.
+
 ---
 
 ## Phase 5 — Generate and Launch Offer
@@ -101,6 +112,7 @@ protocol: <protocol_id>
 topic: "<verbatim topic>"
 max_rounds: <n>
 output_style: brief | standard | detailed
+devils_advocate: true | false
 setup_date: <ISO date>
 agents:
   - slug: <slug>
@@ -109,6 +121,8 @@ agents:
     archetype: <id or custom>
 ---
 ```
+
+`devils_advocate` defaults to `true`. Set to `false` only if the user explicitly opted out in Phase 4.
 
 Body: short human-readable summary of the scenario, output template name (from pattern's `output_template` frontmatter), session slug convention (kebab-case, max ~48 chars).
 
@@ -130,10 +144,23 @@ Assemble from `references/templates/coordinator.md.tmpl`. Substitute generation-
 | `{{OUTPUT_FORMATS}}` | Round/decision/rejection/escalation templates from protocol file |
 | `{{BEHAVIORAL_RULES}}` | From chosen protocol file |
 | `{{CONTEXT_REFERENCES}}` | Generated list of skill references per persona |
+| `{{DEVILS_ADVOCATE_PHASE}}` | If `devils_advocate: true`: full contents of `references/templates/devils-advocate-review.md`. If `devils_advocate: false`: empty string (omit the section entirely). |
 
 Leave `{{TOPIC}}` and `{{TOPIC_SLUG}}` as **runtime literals** (filled at launch).
 
-### 4. `.claude/agents/<slug>.md` per teammate
+### 4. `.claude/agents/devils-advocate.md` (conditional)
+
+If `devils_advocate: true` in config: assemble from `references/templates/teammate.md.tmpl` using the three-layer composition model with `references/personas/devils-advocate.md` as the persona layer.
+
+- **Protocol layer**: same protocol as the rest of the council.
+- **Persona layer**: from `references/personas/devils-advocate.md` (fixed, non-customizable).
+- **Domain layer**: only the `overview` section from `council/domain-context.md` (per the persona's `domain-context-sections` frontmatter).
+
+Do **not** include the Devil's Advocate in `{{TEAMMATES_TABLE}}`. It is not a Phase 1 participant — the coordinator spawns it only during Step 4 (post-deliberation review).
+
+If `devils_advocate: false`: skip this step entirely. Do not generate the file.
+
+### 5. `.claude/agents/<slug>.md` per teammate
 
 Assemble from `references/templates/teammate.md.tmpl`. Three-layer composition:
 
@@ -147,15 +174,15 @@ Assemble from `references/templates/teammate.md.tmpl`. Three-layer composition:
 - `{{DOMAIN_SKILL_REF}}` — path to domain skill if one is generated; otherwise omit.
 - `{{DOMAIN_CONTEXT_BLOCK}}` — assembled from only the sections this persona declared it needs.
 
-### 5. `Docs/INDEX.md`
+### 6. `Docs/INDEX.md`
 
 If `Docs/` has content and INDEX was not already created in Phase 1. For each document: two-line summary + tags. If no docs, write a warning header with *"No indexed documents"*.
 
-### 6. `Sessions/` directory
+### 7. `Sessions/` directory
 
 Create empty (or add `.gitkeep`).
 
-### 7. Optional: `.claude/skills/council-<slug>/SKILL.md` per agent with a domain skill
+### 8. Optional: `.claude/skills/council-<slug>/SKILL.md` per agent with a domain skill
 
 **Archetype path**: open `references/personas/<archetype-id>.md`, extract the "Baseline skill (SKILL.md template)" fenced block, substitute `{{...}}` slots using scenario + customisation map + sensible defaults.
 
@@ -191,7 +218,7 @@ For a clear request such as *"Make me a council to analyse this public tender so
 > | Market Analyst | Competitive positioning, market context | Library |
 > | Compliance Officer | Tender requirements checklist, formal compliance | Library |
 >
-> **Pattern**: builder-validator · **Protocol**: deliberative-voting (default) · **HITL**: inline
+> **Pattern**: builder-validator · **Protocol**: deliberative-voting (default) · **HITL**: inline · **Devil's Advocate review**: enabled (skip?)
 >
 > Want me to adjust the team, or should I generate the council?
 
