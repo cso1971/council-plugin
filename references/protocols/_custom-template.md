@@ -83,6 +83,20 @@
 
 <!-- Templates for all output documents. Use {{TOPIC}} and {{TOPIC_SLUG}} as runtime placeholders. -->
 
+### Individual Response Files — `Sessions/{{TOPIC_SLUG}}/round-{n}-{role-slug}.md`
+
+Before writing the round synthesis, write each participant's response to a separate file. Use the participant's kebab-case role slug. Each file:
+
+```markdown
+---
+round: {N}
+role: {role-slug}
+vote: {VOTE}
+---
+
+{Full response as received — do not summarize or truncate}
+```
+
 ### Round Log — `Sessions/{{TOPIC_SLUG}}/round-{n}.md`
 
 ```markdown

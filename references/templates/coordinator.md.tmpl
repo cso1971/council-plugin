@@ -32,14 +32,14 @@ You are the **lead agent**. You moderate the discussion, spawn teammates, synthe
 
 ## Step 1 — Spawn the Team
 
-Create the teammates listed below, each with their spawn prompt loaded from the corresponding file. Request **plan approval** for each teammate before they begin working.
+Call `TeamCreate` with team name `council-{{TOPIC_SLUG}}` to create the council team. For each teammate listed below, add them to the team:
 
 {{TEAMMATES_TABLE}}
 
-When spawning each teammate:
+For each teammate:
 1. Read the spawn prompt file (`.claude/agents/{role}.md`)
 2. Use its content as the teammate's system instructions
-3. Wait for plan approval before allowing the teammate to act
+3. Request **plan approval** before allowing the teammate to act
 
 ---
 
@@ -61,9 +61,27 @@ Send the topic (above) to all teammates simultaneously. Each must respond using 
 [Specifics — user stories, risks, test criteria, architectural decisions, etc.]
 ```
 
-### After Each Round: Synthesize and Evaluate
+### After Each Round: Persist and Synthesize
 
-Once all teammates have responded, you MUST:
+Once all teammates have responded, you MUST first persist individual responses, then synthesize.
+
+**Persist individual responses** (do this before synthesizing):
+
+Write each teammate's response to a separate file: `Sessions/{{TOPIC_SLUG}}/round-{N}-{role-slug}.md`
+
+Use the teammate's slug (kebab-case role identifier) as `{role-slug}`. Each file:
+
+```markdown
+---
+round: {N}
+role: {role-slug}
+vote: {VOTE}
+---
+
+{Full response as received, verbatim — do not summarize or truncate}
+```
+
+**Then synthesize and evaluate**:
 
 1. **List each participant's vote and key points** — no response may be omitted or downplayed
 2. **Check for rejection**: {{REJECTION_RULE}}

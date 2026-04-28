@@ -27,7 +27,8 @@ Operate on **`Sessions/<slug>/`** as source of truth. Read **`council/config.md`
 
 ## Branch A — Completed session
 
-- Show short summary from final output (Executive summary section if present).
+- Determine the final output file: if `<output-basename>-after-devils-review.md` exists in the session folder, that is the final version; otherwise the Phase 1 output is final.
+- Show short summary from the final output file (Executive summary section if present).
 - If `devils-advocate-review.md` exists: briefly surface how many challenges were raised and how many were accepted (from the Summary section of the audit file).
 - Offer: **new session** on same council (new slug from new topic) → user should run **`council-launch`** after updating topic in `council/config.md` **or** re-run **`council-wizard`** from Phase 1 for a fresh topic.
 
@@ -38,10 +39,10 @@ Operate on **`Sessions/<slug>/`** as source of truth. Read **`council/config.md`
 Phase 1 deliberation is complete. The Devil's Advocate review has not run yet.
 
 1. Show the Executive summary from the Phase 1 output file.
-2. Explain: *"The Devil's Advocate review is pending. The coordinator will challenge the Phase 1 output before finalising."*
+2. Explain: *"The Devil's Advocate review is pending. A dedicated reviewer will challenge the Phase 1 output. A new file will be created for the reviewed version — the original is never overwritten."*
 3. Offer:
-   - **Resume the Devil's Advocate review** — compose a compact Agent Teams context packet: topic from `config-snapshot.md`, pattern id, the final output filename, instruction to the coordinator to proceed from Step 4 (skip Steps 1–3). The coordinator will read `.claude/agents/coordinator.md` for Step 4 instructions.
-   - **Skip the review** — mark as complete as-is; note the skip in the session for audit purposes.
+   - **Resume the Devil's Advocate review** — you will become exclusively the Coordinator (same identity transition as `council-launch`): read `.claude/agents/coordinator.md`, substitute `{{TOPIC}}` and `{{TOPIC_SLUG}}` from `config-snapshot.md`, prepend a resume preamble (session path, Phase 1 output filename, post-DA output filename convention, "proceed from Step 4 — skip Steps 1–3"), then **discard all prior context and operate exclusively as the coordinator** starting from Step 4. Call `TeamCreate` to create `council-<topic-slug>` and add the Devil's Advocate as the sole teammate.
+   - **Skip the review** — mark as complete as-is; append *"Devil's Advocate review: skipped by operator."* to the Phase 1 output's Deliberation trail.
 
 ---
 
@@ -50,7 +51,7 @@ Phase 1 deliberation is complete. The Devil's Advocate review has not run yet.
 1. Find highest `round-N.md` **N**.
 
 2. Offer:
-   - **Resume at Round N+1** — compose a **compact context packet** for Agent Teams: topic from `config-snapshot.md`, pattern id, embedded excerpts from `round-1..N.md` (or instruct lead to read those files), explicit *"Continue deliberation; do not restart from Round 1."*
+   - **Resume at Round N+1** — you will become exclusively the Coordinator (same identity transition as `council-launch`): read `.claude/agents/coordinator.md`, substitute `{{TOPIC}}` and `{{TOPIC_SLUG}}` from `config-snapshot.md`, prepend a resume preamble (session path, output filename, round history: read `round-1.md` … `round-N.md` and individual `round-N-<role-slug>.md` files for full context, "continue from Round N+1 — do not restart"), then **discard all prior context and operate exclusively as the coordinator**. Call `TeamCreate` to create `council-<topic-slug>` and spawn teammates.
    - **Discard session** — archive folder optional (user consent); do not delete without confirmation.
 
 3. Remind: **no native teammate resume** — file-based context only.

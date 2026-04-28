@@ -502,19 +502,77 @@ graph TD
 
 ### T22: Update `council-resume` to call `TeamCreate` for resumption
 
-**Description**: `council-resume` branches B (in-progress) and D (Phase 2 pending) currently compose "context packets" in the same paste-style as the old `council-launch`. Update both branches to call `TeamCreate` directly, following the same pattern established by T21. Branch B passes the coordinator with round history context; Branch D passes the coordinator starting from Step 4 only.
+**Description**: Superseded by T23. The identity-transition pattern introduced in T23 covers both the launch and resume cases, making T22 redundant as a standalone task.
+
+**Status**: SUPERSEDED by T23
+
+---
+
+### T23: Main agent becomes exclusively the coordinator (not a separate sub-agent)
+
+**Description**: Agent Teams does not support sub-agents spawning their own teams. `council-launch` currently calls `TeamCreate` with the coordinator as a NEW lead agent — that coordinator then tries to spawn teammates, which is a nested team operation that Agent Teams does not support. Fix: the main agent undergoes an identity transition and becomes exclusively the coordinator. It discards all prior context (launch, wizard) and operates only as the coordinator from that point forward, calling `TeamCreate` directly to spawn teammates. Apply the same pattern to `council-resume` branches B and D. Update `coordinator.md.tmpl` Step 1 to use `TeamCreate` explicitly.
 
 **Files modified**:
-- `skills/council-resume/SKILL.md` -- Branch B and Branch D: replace "compose compact context packet" with `TeamCreate` invocation
+- `skills/council-launch/SKILL.md` — replace steps 5–6 ("Call TeamCreate with coordinator as lead") with identity-transition instruction
+- `references/templates/coordinator.md.tmpl` — Step 1: explicit `TeamCreate` call instead of vague "spawn"
+- `references/templates/devils-advocate-review.md` — Step 4.2: "add to existing team" instead of "spawn"
+- `skills/council-resume/SKILL.md` — Branches B and D: identity-transition pattern (same as launch)
 
 **Acceptance criteria**:
-- [ ] Branch B instructs Claude to call `TeamCreate` with a resume preamble (topic, pattern, round history references, "continue from Round N+1")
-- [ ] Branch D instructs Claude to call `TeamCreate` with a Phase 2 preamble (topic, Phase 1 output path, "proceed from Step 4")
-- [ ] `council-resume/SKILL.md` description updated to reflect direct launch
+- [x] `council-launch` step 5 instructs the main agent to discard all prior context and become exclusively the coordinator
+- [x] `coordinator.md.tmpl` Step 1 calls `TeamCreate` explicitly to create `council-{{TOPIC_SLUG}}`
+- [x] `devils-advocate-review.md` Step 4.2 adds to the existing team rather than spawning a new lead
+- [x] `council-resume` Branch B performs the same identity transition before calling `TeamCreate`
+- [x] `council-resume` Branch D performs the same identity transition before calling `TeamCreate` for Step 4
 
 **Depends on**: T21
 
-**Status**: TODO
+**Status**: DONE
+
+---
+
+### T24: Persist individual teammate responses as Markdown files
+
+**Description**: Teammate responses currently exist only in Agent Teams in-memory messaging. For traceability and session resume, each teammate's response per round must be saved as a separate Markdown file on disk (`round-N-<role-slug>.md`) before the coordinator writes the synthesis file (`round-N.md`). This applies to all three protocols.
+
+**Files modified**:
+- `references/templates/coordinator.md.tmpl` — Step 2: persist individual response files before synthesizing
+- `references/protocols/deliberative-voting.md` — add individual response files section to Output Formats
+- `references/protocols/adversarial-debate-protocol.md` — same
+- `references/protocols/convergent-investigation.md` — same
+- `references/protocols/_custom-template.md` — same
+
+**Acceptance criteria**:
+- [x] `coordinator.md.tmpl` Step 2 writes `round-{N}-{role-slug}.md` per teammate before writing `round-N.md`
+- [x] Each individual response file has YAML frontmatter (round, role, vote) + full verbatim response body
+- [x] All three protocol Output Formats sections document the individual response file format
+- [x] `council-resume` Branch B mentions individual response files as available context
+
+**Depends on**: T23
+
+**Status**: DONE
+
+---
+
+### T25: Devil's Advocate creates new file instead of overwriting original
+
+**Description**: `devils-advocate-review.md` Step 4.5 currently instructs the coordinator to overwrite the Phase 1 output file with the consolidated version. This destroys the original deliberation output. Fix: the coordinator must write a NEW file `<output-basename>-after-devils-review.md` and leave the original Phase 1 output untouched. If the DA votes APPROVE with no amendments, no new file is created. Update `council-resume` Branch A to detect and show the correct final file.
+
+**Files modified**:
+- `references/templates/devils-advocate-review.md` — Steps 4.5 and 4.7: new file instead of overwrite
+- `skills/council-launch/SKILL.md` — add post-DA output file to launch preamble
+- `skills/council-resume/SKILL.md` — Branch A: detect and show post-DA file as final version
+
+**Acceptance criteria**:
+- [x] `devils-advocate-review.md` Step 4.5 writes `<output-basename>-after-devils-review.md`, never modifies original
+- [x] Step 4.7 appends DA Review subsection to the post-DA file (if created) and a pointer to the original
+- [x] If DA votes APPROVE with no amendments, no new file is created
+- [x] Launch preamble includes the post-DA filename convention
+- [x] `council-resume` Branch A checks for the post-DA file and shows it as the final version when present
+
+**Depends on**: T23
+
+**Status**: DONE
 
 ---
 

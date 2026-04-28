@@ -39,7 +39,7 @@ Prerequisite: access to Claude Cowork (desktop/web) or Claude Code CLI, and a pr
 
 The plugin is designed to work **with** these constraints, not around them:
 
-- No nested teams -- only the lead (coordinator) agent orchestrates; teammates cannot spawn sub-teams.
+- No nested teams -- the main agent undergoes an identity transition and becomes exclusively the coordinator; it calls `TeamCreate` to spawn teammates. Teammates cannot spawn sub-teams.
 - No session resumption at the platform level -- teams are ephemeral; all state lives in the project filesystem.
 - Teammates have reduced tools -- no `AgentTool`, `TeamCreate/Delete`, `Cron*` available to teammates.
 - Single model across all agents (Opus).
@@ -138,8 +138,10 @@ When the wizard runs in a user project, it generates:
     INDEX.md                                 auto-generated index
   Sessions/<topic-slug>/
     config-snapshot.md                       frozen config at launch time
-    round-1.md ... round-N.md               round logs
-    <output>.md                              final output (decision|findings|...)
+    round-1.md ... round-N.md               round synthesis logs (one per round)
+    round-N-<role-slug>.md                  individual teammate response (one per teammate per round)
+    <output>.md                              Phase 1 final output (decision|findings|...) — never overwritten
+    <output>-after-devils-review.md          post-DA consolidated version (only if DA ran and produced amendments)
     escalation.md                            if no consensus after max rounds
     devils-advocate-review.md                challenge + resolution audit (if Phase 2 ran)
 ```
@@ -179,11 +181,11 @@ The templates (`references/templates/*.tmpl`) define the structural skeleton and
 The plugin generates static files. Agent Teams is the only runtime:
 
 1. **Wizard** generates `.claude/agents/*.md`, `council/config.md`, `council/domain-context.md`, and optional skills
-2. **`council-launch`** reads config and agent files, resolves runtime variables (`{{TOPIC}}`, `{{TOPIC_SLUG}}`), and calls `TeamCreate` with the coordinator as lead
-3. **Coordinator** reads its agent file (passed at team creation with runtime variables resolved), spawns teammates, runs the deliberative cycle (Phase 1)
+2. **`council-launch`** reads config and agent files, resolves runtime variables (`{{TOPIC}}`, `{{TOPIC_SLUG}}`), then **the main agent undergoes an identity transition**: it discards all prior context and becomes exclusively the Coordinator for the remainder of the session
+3. **Coordinator** (the main agent) calls `TeamCreate` directly to create the team and spawn teammates; runs the deliberative cycle (Phase 1)
 4. **Teammates** respond using the protocol format embedded in their agent files
-5. **Round logs** and **final output draft** are written to `Sessions/<slug>/`
-6. **Coordinator** runs the Devil's Advocate review (Phase 2) if enabled: spawns the Devil's Advocate, feeds it the Phase 1 output, consolidates challenges, overwrites the final output with the consolidated version, writes `devils-advocate-review.md`
+5. **Individual response files** (`round-N-<role-slug>.md`) and **round synthesis logs** (`round-N.md`) are written to `Sessions/<slug>/` after each round; the **final output draft** is written on consensus
+6. **Coordinator** runs the Devil's Advocate review (Phase 2) if enabled: adds the Devil's Advocate to the existing team, feeds it the Phase 1 output, consolidates challenges, writes a **new** `<output>-after-devils-review.md` file (original Phase 1 output is never modified), writes `devils-advocate-review.md`
 
 The same generated artifacts work identically on Cowork and CLI. No runtime differences.
 
@@ -530,35 +532,35 @@ Writes all artifacts. No separate skill invocation needed. The `council-scaffold
 - Creates `Sessions/<topic-slug>/` with `config-snapshot.md` (frozen config copy).
 - Resolves output filename and template path from pattern `output_template` and `output_style`.
 - Reads `.claude/agents/coordinator.md` and substitutes the two runtime variables: `{{TOPIC}}` and `{{TOPIC_SLUG}}`.
-- Prepends a **launch preamble** (session path, output file, output template, output style implications) to the resolved coordinator instructions.
-- Calls `TeamCreate` with `council-<topic-slug>` as team name and the coordinator (preamble + resolved instructions) as lead agent.
-- The coordinator takes over from Step 1 (spawn teammates) onwards.
+- Prepends a **launch preamble** (session path, output file, post-DA output filename convention, output template, output style implications) to the resolved coordinator instructions.
+- **Identity transition**: the main agent discards all prior context (launch checks, wizard history) and becomes exclusively the Coordinator for the remainder of the session. There is no "return to launch."
+- As the Coordinator (main agent), calls `TeamCreate` with `council-<topic-slug>` to create the team and spawn teammates from Step 1 onwards.
 
 ### 6.3 Run (Agent Teams native)
 
 No custom runtime. Agent Teams orchestrates:
 
 **Phase 1 -- Deliberation:**
-1. Coordinator spawns teammates (reads `.claude/agents/*.md`; does NOT spawn `devils-advocate.md` yet)
+1. Coordinator (main agent) calls `TeamCreate` to spawn teammates (reads `.claude/agents/*.md`; does NOT add `devils-advocate.md` yet)
 2. Teammates respond using protocol format
-3. Coordinator writes `round-N.md` after each round
+3. Coordinator writes individual response files (`round-N-<role-slug>.md`) per teammate, then `round-N.md` synthesis after each round
 4. Inline HITL checkpoints per pattern type
 5. Consensus check -> Phase 1 output file written, or escalation after max rounds
 
 **Phase 2 -- Devil's Advocate Review** (if `devils_advocate: true` in config and Phase 1 reached output):
 6. Coordinator asks operator inline: proceed with Devil's Advocate review or skip?
-7. If proceed: coordinator spawns `devils-advocate.md`, feeds it the Phase 1 output + topic
+7. If proceed: coordinator adds `devils-advocate.md` to the existing team, feeds it the Phase 1 output + topic
 8. Devil's Advocate challenges the output across 5 categories: contradictions, errors, vagueness, unstated assumptions, unspecified elements
 9. Coordinator addresses each challenge (accept/partially-accept/dismiss with reasoning)
-10. Coordinator overwrites the output file with the consolidated final version
+10. If amendments accepted: coordinator writes a NEW `<output>-after-devils-review.md` — the original Phase 1 output file is never modified; if DA voted APPROVE with no amendments, no new file is created
 11. Coordinator writes `Sessions/<slug>/devils-advocate-review.md` (challenge + resolution audit)
-12. Coordinator appends Devil's Advocate Review subsection to the Deliberation trail
+12. Coordinator appends Devil's Advocate Review subsection to the Deliberation trail (of the post-DA file if created, or of the original if APPROVE)
 
 ### 6.4 Resume (`council-resume` skill)
 
 - Discovers `Sessions/*/` directories
 - Detects state:
-  - **Completed**: final output exists AND either `config-snapshot.md` has `devils_advocate: false` OR `devils-advocate-review.md` exists
+  - **Completed**: final output exists AND either `config-snapshot.md` has `devils_advocate: false` OR `devils-advocate-review.md` exists. Final version is `<output>-after-devils-review.md` if it exists, otherwise the original Phase 1 output.
   - **Phase 2 pending**: final output exists AND `config-snapshot.md` has `devils_advocate: true` AND no `devils-advocate-review.md` -- Phase 1 is done, Devil's Advocate review not yet run
   - **In-progress**: `round-*.md` exists, no final output
   - **Escalated**: `escalation.md` exists

@@ -22,9 +22,9 @@ Ask the operator inline:
 
 ---
 
-### 4.2 — Spawn the Devil's Advocate
+### 4.2 — Add the Devil's Advocate
 
-Spawn one additional teammate from `.claude/agents/devils-advocate.md`. Use its file content as the teammate's system instructions. Request **plan approval** before the teammate acts.
+Add one additional teammate to the existing council team. Load their instructions from `.claude/agents/devils-advocate.md` and use its file content as the teammate's system instructions. Request **plan approval** before the teammate acts.
 
 The Devil's Advocate does not receive the original topic broadcast. It receives only what you send it in 4.3.
 
@@ -56,11 +56,15 @@ If **APPROVE**: proceed to 4.5 (no amendments needed). If **OBJECT**: proceed to
 
 For every issue in the challenge list, decide:
 
-- **Accept**: the issue is valid and material — amend the relevant section of the Phase 1 output
+- **Accept**: the issue is valid and material — amend the relevant section
 - **Partially accept**: the issue is partially valid — make a targeted clarification
 - **Dismiss**: the issue is not applicable or is editorial only — record the reason
 
-Rewrite the output file (`Sessions/{{TOPIC_SLUG}}/<output-filename>.md`) incorporating all accepted and partially accepted amendments. This overwrites the Phase 1 draft with the consolidated, final version.
+**If any challenges were accepted or partially accepted**: write a **new** file `Sessions/{{TOPIC_SLUG}}/<output-basename>-after-devils-review.md` incorporating all amendments. Derive `<output-basename>` by stripping the `.md` extension from the Phase 1 output filename (e.g. `decision.md` → `decision-after-devils-review.md`).
+
+**The original Phase 1 output file (`Sessions/{{TOPIC_SLUG}}/<output-filename>.md`) must not be modified.**
+
+**If the DA voted APPROVE with no amendments**: do not create a new file. The original Phase 1 output is the final version.
 
 ---
 
@@ -98,7 +102,15 @@ If the Devil's Advocate voted APPROVE, write a brief confirmation audit artifact
 
 ### 4.7 — Update the Deliberation trail
 
-Append a **Devil's Advocate Review** subsection to the `## Deliberation trail` section of the final output file:
+**If a post-review file was created** (`<output-basename>-after-devils-review.md`):
+- Append a **Devil's Advocate Review** subsection to the `## Deliberation trail` section of the post-review file.
+- Append a one-line pointer at the end of the original Phase 1 file's `## Deliberation trail`:
+  > Post-DA review version: `Sessions/{{TOPIC_SLUG}}/<output-basename>-after-devils-review.md`
+
+**If the DA voted APPROVE** (no post-review file created):
+- Append the **Devil's Advocate Review** subsection to the original Phase 1 output's `## Deliberation trail`.
+
+Both cases use the same subsection format:
 
 ```
 ### Devil's Advocate Review
@@ -107,4 +119,4 @@ Challenges accepted: N | Partially accepted: N | Dismissed: N
 Audit: Sessions/{{TOPIC_SLUG}}/devils-advocate-review.md
 ```
 
-The output file is now finalised.
+The council session is now finalised.

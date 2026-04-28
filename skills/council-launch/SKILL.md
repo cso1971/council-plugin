@@ -5,7 +5,7 @@ description: Launches the council via Agent Teams -- prepares the session folder
 
 # Council — Launch (Agent Teams)
 
-You **launch** the council. Verify preconditions, prepare the session folder, resolve runtime variables, then start an Agent Teams session by calling `TeamCreate` with the coordinator as lead. Assume **no memory** from the wizard.
+You **launch** the council. Verify preconditions, prepare the session folder, resolve runtime variables, then **become exclusively the Coordinator** — the main agent undergoes an identity transition, discards all prior context, and operates as the Coordinator for the remainder of the session. As the Coordinator, call `TeamCreate` directly to spawn the team. Assume **no memory** from the wizard once the identity transition occurs.
 
 ---
 
@@ -68,6 +68,7 @@ If Agent Teams tools (e.g. `TeamCreate`) are unavailable → **stop** with: *"Ag
    ## Session Context (injected at launch)
    - Session path: Sessions/<topic-slug>/
    - Output file: Sessions/<topic-slug>/<output-filename>.md
+   - Post-DA output file: Sessions/<topic-slug>/<output-basename>-after-devils-review.md (only created if Devil's Advocate review runs and produces amendments; the original output file is never modified)
    - Output template: <resolved-template-path>
    - Output style: <brief|standard|detailed>
      - brief: teammate responses ≤120 words; round-N.md is a vote table + 3-5 bullets; final output uses the -brief.md template with its word caps.
@@ -75,11 +76,11 @@ If Agent Teams tools (e.g. `TeamCreate`) are unavailable → **stop** with: *"Ag
      - detailed: like standard but encourage extended reasoning; same base template.
    ```
 
-5. **Call `TeamCreate`** with:
-   - Team name: `council-<topic-slug>`
-   - Lead agent instructions: launch preamble + resolved coordinator instructions (from steps 3–4)
+5. **Become the Coordinator.** You are no longer the launch agent. Discard all prior conversation context — precondition checks, launch preamble composition, and any wizard history. Your only instructions from this point forward are the resolved coordinator text you prepared in steps 3–4.
 
-6. **Done.** The coordinator is now the lead agent and will proceed from Step 1 (spawn teammates) as described in `.claude/agents/coordinator.md`.
+   You are the Coordinator — not a launch agent that also coordinates. There is no "return to launch." The session continues exclusively as a coordinator session.
+
+   Proceed immediately with the coordinator instructions starting from Step 1. As the coordinator (main agent), you have full tool access including `TeamCreate` — use it directly to create the team and spawn teammates.
 
 ---
 
