@@ -1,7 +1,8 @@
 # council-plugin
 
 A **Claude Code / Cowork plugin** for convening a **Council of Agents** --
-business or technical -- using **Agent Teams** as the runtime.
+business or technical -- using **Agent Teams** as the primary runtime
+(with automatic subagent fallback).
 
 Describe what you need. The plugin handles pattern selection, agent
 composition, file generation, and launch. No pre-existing agents or
@@ -23,7 +24,7 @@ The wizard detects the scenario domain (business / tech / mixed) and adapts its 
 
 **What it ships with:** 7 orchestration patterns, 18 personas (12 business + 6 tech), 3 interaction protocols, and 6 output templates.
 
-**How it works:** every generated agent file is assembled from three independent layers -- a protocol layer (voting rules, consensus criteria), a persona layer (role identity, competencies, behavior), and a domain context layer (project-specific knowledge filtered per role). Agent Teams discovers the generated files at `.claude/agents/` and runs them natively.
+**How it works:** every generated agent file is assembled from three layers -- a protocol layer (voting rules, consensus criteria), a persona layer (role identity, competencies, behavior), and a domain skill reference. Each agent also gets a dedicated SKILL.md containing its domain knowledge, generated via skill-creator. The agent file holds only behavior and context; domain knowledge lives in the SKILL. Agent Teams (or subagents as fallback) discovers the generated files at `.claude/agents/` and runs them.
 
 ### How the plugin is organized
 
@@ -54,6 +55,7 @@ The `references/` directories are read by the wizard at generation time. Pattern
 
 - Claude Cowork (desktop or web) **or** Claude Code CLI
 - A project folder with relevant documents or code (the wizard will scan it for context)
+- **skill-creator plugin** (recommended) -- used to generate agent domain skills. If not installed, the wizard falls back to archetype templates and notifies you.
 
 ### Install
 
@@ -79,11 +81,12 @@ Invoke the wizard and describe your goal in plain language:
 
 > *"I need a council to analyze this public tender and help me write a proposal."*
 
-The wizard will ask a couple of targeted questions to pick the right pattern, then propose a team. For a clear request it can collapse scenario intake, pattern selection, and agent composition into a single response -- one confirmation and it generates the council.
+The wizard guides you through 5 phases: scenario intake, pattern selection, agent composition, HITL confirmation, and generation. Each phase is a distinct interaction step -- the wizard may be concise for clear requests, but it will always complete every phase.
 
 **What gets generated** in your project:
 
-- `.claude/agents/coordinator.md` and `.claude/agents/<role>.md` -- agent files that Agent Teams runs natively
+- `.claude/agents/coordinator.md` and `.claude/agents/<role>.md` -- agent files (behavior, rules, context)
+- `.claude/skills/council-<role>/SKILL.md` -- one per agent, containing domain knowledge (generated via skill-creator)
 - `council/config.md` -- council metadata (pattern, topic, agents, settings)
 - `council/domain-context.md` -- project knowledge assembled from your documents or codebase
 - `Sessions/<topic-slug>/` -- round logs and final output land here during the run
@@ -120,12 +123,12 @@ See [User project artifacts](#user-project-artifacts-generated) for the full lis
 
 The wizard generates these files in the user's project:
 
-- `.claude/agents/coordinator.md`, `.claude/agents/<slug>.md` -- agent files (Agent Teams native path)
+- `.claude/agents/coordinator.md`, `.claude/agents/<slug>.md` -- agent files (behavior, rules, context only)
+- `.claude/skills/council-<slug>/SKILL.md` -- **one per agent** — domain knowledge generated via skill-creator (or archetype fallback)
 - `council/config.md` -- council metadata (pattern, topic, agents, settings)
 - `council/domain-context.md` -- scenario/project knowledge with labeled sections
 - `Sessions/<slug>/round-*.md` -- round logs, final output, optional `escalation.md`
 - `Docs/INDEX.md` -- auto-generated document index (if `Docs/` has content)
-- `.claude/skills/council-<slug>/SKILL.md` -- optional per-agent domain skills
 
 ## Limits (first release)
 
@@ -134,6 +137,7 @@ The wizard generates these files in the user's project:
 - All agents share **one model** (Opus) on Agent Teams.
 - Default **`max_rounds` = 4** (up to 6 in `council/config.md`).
 - Keep `Docs/` roughly **under ~100 files** to limit context use.
+- **Agent Teams** is the preferred runtime. If unavailable, the plugin automatically falls back to subagent mode using the `Agent` tool — deliberation is identical but responses arrive sequentially.
 
 ## Validation
 

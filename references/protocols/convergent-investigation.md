@@ -114,22 +114,7 @@ Coordinator produces a single findings narrative: hypotheses tested, evidence ma
 
 All output files go in `Sessions/{{TOPIC_SLUG}}/`. Create the directory if it doesn't exist.
 
-### After Every Round — Individual Response Files
-
-Before writing the round synthesis, write each investigator's response to a separate file:
-`Sessions/{{TOPIC_SLUG}}/round-{n}-{role-slug}.md`
-
-Use the investigator's kebab-case role slug. Each file uses YAML frontmatter + full verbatim response:
-
-```markdown
----
-round: {N}
-role: {role-slug}
-vote: {VOTE}
----
-
-{Full response as received — do not summarize or truncate}
-```
+<!-- ROUND_ARTIFACT_FORMATS_START -->
 
 ### After Every Round — Round Synthesis
 
@@ -165,6 +150,10 @@ Write `Sessions/{{TOPIC_SLUG}}/round-{n}.md`:
 - [Hypothesis 2]: ...
 **Next round focus** (if applicable): [Which hypotheses need more work and what specific questions]
 ```
+
+<!-- ROUND_ARTIFACT_FORMATS_END -->
+
+<!-- FINAL_OUTPUT_FORMATS_START -->
 
 ### On Convergence — `findings.md`
 
@@ -262,6 +251,8 @@ Write `Sessions/{{TOPIC_SLUG}}/escalation.md`:
 [Your recommendation for the human: which hypothesis to act on given current evidence,
 what to investigate next, and under what conditions you would revisit this conclusion]
 ```
+
+<!-- FINAL_OUTPUT_FORMATS_END -->
 
 ---
 

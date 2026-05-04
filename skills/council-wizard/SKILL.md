@@ -7,7 +7,7 @@ description: 5-phase council wizard -- scenario intake, pattern selection, agent
 
 You run the **end-to-end council setup** for any user (business or technical). Default language: **English**. Work **inside the user's project folder**. Optimised for Cowork; CLI is also supported.
 
-Phases are **logical steps, not mandatory sequential gates**. When the user's intent is clear, collapse Phases 1–3 into a single response and jump to Phase 4.
+Phases are **mandatory sequential steps**. Every invocation must go through all 5 phases in order. Phases may be concise when the user's intent is clear, but each must be a distinct interaction step — none may be skipped.
 
 **Reference library** (read-only, from this plugin):
 
@@ -72,8 +72,6 @@ Phases are **logical steps, not mandatory sequential gates**. When the user's in
 2. User may confirm, rename, change focus, add or remove roles.
 
 3. **Reuse check**: scan `.claude/agents/` for existing agent files from prior councils. If found, offer to reuse with optional modifications.
-
-4. **Domain-specific skills**: for each agent backed by a library persona, check whether that persona file contains a "Baseline skill (SKILL.md template)" fenced block. If it does, ask the user whether this agent needs a domain-specific skill generated. Only ask if relevant.
 
 ---
 
@@ -141,7 +139,8 @@ Assemble from `references/templates/coordinator.md.tmpl`. Substitute generation-
 | `{{VOTE_OPTIONS}}` | From chosen protocol file |
 | `{{CONSENSUS_RULE}}` | From chosen protocol file |
 | `{{REJECTION_RULE}}` | From chosen protocol file |
-| `{{OUTPUT_FORMATS}}` | Round/decision/rejection/escalation templates from protocol file |
+| `{{ROUND_ARTIFACT_FORMATS}}` | Round synthesis template from protocol file — content between `<!-- ROUND_ARTIFACT_FORMATS_START -->` and `<!-- ROUND_ARTIFACT_FORMATS_END -->` markers in the `## Output Formats` section |
+| `{{OUTPUT_FORMATS}}` | Final output templates from protocol file — content between `<!-- FINAL_OUTPUT_FORMATS_START -->` and `<!-- FINAL_OUTPUT_FORMATS_END -->` markers in the `## Output Formats` section |
 | `{{BEHAVIORAL_RULES}}` | From chosen protocol file |
 | `{{CONTEXT_REFERENCES}}` | Generated list of skill references per persona |
 | `{{DEVILS_ADVOCATE_PHASE}}` | If `devils_advocate: true`: full contents of `references/templates/devils-advocate-review.md`. If `devils_advocate: false`: empty string (omit the section entirely). |
@@ -170,9 +169,8 @@ Assemble from `references/templates/teammate.md.tmpl`. Three-layer composition:
 **Persona layer** (from `references/personas/<archetype-id>.md`):
 - `{{ROLE_NAME}}`, `{{ROLE_DESCRIPTION_SHORT}}`, `{{IDENTITY_BLOCK}}`, `{{COMPETENCIES}}`, `{{BEHAVIOR_RULES}}`, `{{CARE_ABOUT}}`, `{{DEFER_TO}}`, `{{VOTE_GUIDELINES_TABLE}}`, `{{QUALITY_CHECKLIST}}`
 
-**Domain layer** (from `council/domain-context.md`, filtered by persona's `domain-context-sections` frontmatter):
-- `{{DOMAIN_SKILL_REF}}` — path to domain skill if one is generated; otherwise omit.
-- `{{DOMAIN_CONTEXT_BLOCK}}` — assembled from only the sections this persona declared it needs.
+**Domain layer**:
+- `{{DOMAIN_SKILL_REF}}` — **mandatory** reference to `.claude/skills/council-<slug>/SKILL.md`. This is always populated; the skill file is generated in step 8 below.
 
 ### 6. `Docs/INDEX.md`
 
@@ -182,13 +180,25 @@ If `Docs/` has content and INDEX was not already created in Phase 1. For each do
 
 Create empty (or add `.gitkeep`).
 
-### 8. Optional: `.claude/skills/council-<slug>/SKILL.md` per agent with a domain skill
+### 8. `.claude/skills/council-<slug>/SKILL.md` per agent (mandatory)
 
-**Archetype path**: open `references/personas/<archetype-id>.md`, extract the "Baseline skill (SKILL.md template)" fenced block, substitute `{{...}}` slots using scenario + customisation map + sensible defaults.
+Every agent **must** have a corresponding SKILL.md generated. The domain knowledge for each agent lives exclusively in its SKILL, not in the agent file.
 
-**Custom path (skill-creator)**: build a structured brief (role title, focus, expected output sections, doc tags from INDEX, pattern constraints such as vote format). Invoke skill-creator; land output at `.claude/skills/council-<slug>/SKILL.md`.
+Build a **structured brief** for each agent: role title, focus areas, relevant `council/domain-context.md` sections (filtered by this persona's `domain-context-sections` frontmatter), doc tags from `Docs/INDEX.md`, pattern constraints (vote format, output expectations).
 
-**Failure handling**: if skill-creator fails → retry with a more explicit brief. On second failure → copy the closest archetype baseline from `references/personas/`, prepend: *"Manual refinement recommended (skill-creator failed)."*
+**Primary path (skill-creator available)**: invoke skill-creator with the structured brief. Land output at `.claude/skills/council-<slug>/SKILL.md`.
+
+**Failure handling**: if skill-creator fails → retry once with a more explicit brief. On second failure → fall back to simple skill creation (see below).
+
+**Fallback path (skill-creator not available or failed twice)**: inform the user explicitly:
+
+> *"The skill-creator plugin is not available (or failed). Skills will be created from archetype templates."*
+
+Then:
+- **Library persona**: open `references/personas/<archetype-id>.md`, extract the "Baseline skill (SKILL.md template)" fenced block, substitute `{{...}}` slots using scenario + customisation map + sensible defaults.
+- **Custom agent (no archetype baseline)**: write a minimal SKILL.md directly using the structured brief as the skill body.
+
+Land the result at `.claude/skills/council-<slug>/SKILL.md`. In all cases, the skill file **must** be created — the path differs, the outcome is the same.
 
 ---
 
@@ -203,36 +213,14 @@ Report: **"Council scaffolded — N files created across M folders."** List all 
 
 ---
 
-## Collapsed flow
-
-For a clear request such as *"Make me a council to analyse this public tender so I can write a proposal"*, collapse Phases 1–3 into a single response:
-
-> I'll set up a **builder-validator** council for your tender analysis. The pattern fits because you need an artifact (proposal draft) validated for compliance.
->
-> **Proposed team (4 agents):**
->
-> | Agent | Focus | Source |
-> |-------|-------|--------|
-> | Legal Advisor | Contract terms, regulatory compliance | Library |
-> | Financial Controller | Cost structure, pricing, margin analysis | Library |
-> | Market Analyst | Competitive positioning, market context | Library |
-> | Compliance Officer | Tender requirements checklist, formal compliance | Library |
->
-> **Pattern**: builder-validator · **Protocol**: deliberative-voting (default) · **HITL**: inline · **Devil's Advocate review**: enabled (skip?)
->
-> Want me to adjust the team, or should I generate the council?
-
-One confirmation → jump to Phase 5.
-
----
-
 ## Error handling
 
 | Situation | Behaviour |
 |---|---|
 | `Docs/` missing or empty | Warn; allow proceed with scenario-only context |
-| Skill-creator fails | Retry with explicit brief; on second failure copy nearest archetype with "Manual refinement recommended" note |
-| Agent Teams unavailable (`TeamCreate` errors) | Clear error: wrong Claude Code mode or plan; suggest the user enable Agent Teams |
+| skill-creator fails | Retry with explicit brief; on second failure fall back to archetype template or minimal SKILL.md. Inform user. |
+| skill-creator not available | Inform user explicitly: *"skill-creator plugin not available — using archetype templates."* Proceed with simple skill creation. |
+| Agent Teams unavailable (`TeamCreate` not available) | Inform user; coordinator falls back to subagent mode using the `Agent` tool. Deliberation proceeds identically. |
 | Required scaffold file missing at launch | Stop with an explicit error and reference the wizard |
 
 ---

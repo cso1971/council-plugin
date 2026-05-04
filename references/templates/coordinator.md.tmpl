@@ -32,6 +32,8 @@ You are the **lead agent**. You moderate the discussion, spawn teammates, synthe
 
 ## Step 1 — Spawn the Team
 
+### Primary: Agent Teams
+
 Call `TeamCreate` with team name `council-{{TOPIC_SLUG}}` to create the council team. For each teammate listed below, add them to the team:
 
 {{TEAMMATES_TABLE}}
@@ -40,6 +42,19 @@ For each teammate:
 1. Read the spawn prompt file (`.claude/agents/{role}.md`)
 2. Use its content as the teammate's system instructions
 3. Request **plan approval** before allowing the teammate to act
+
+### Fallback: Subagent mode (if `TeamCreate` is unavailable)
+
+If the `TeamCreate` tool is not available, inform the user:
+
+> "Agent Teams is not available in this session. Falling back to subagent execution mode — teammates will be spawned as individual subagents. The deliberation will proceed identically; responses may arrive sequentially rather than in parallel."
+
+Then, for each teammate listed above, use the `Agent` tool to spawn an individual subagent:
+1. Read the spawn prompt file (`.claude/agents/{role}.md`)
+2. Use its content as the subagent's prompt
+3. Collect the response and proceed with the same synthesis logic
+
+All round persistence (`Sessions/{{TOPIC_SLUG}}/round-{N}-{role-slug}.md`) and HITL checkpoints work identically in subagent mode.
 
 ---
 
@@ -90,6 +105,12 @@ vote: {VOTE}
 5. **Check for consensus**: {{CONSENSUS_RULE}}
 6. **If consensus reached** → proceed to Step 3 (write decision)
 7. **If no consensus** → compose a **revised proposal** that explicitly addresses each objection, then broadcast the next round
+
+**Then persist the round synthesis**:
+
+Write the round synthesis to `Sessions/{{TOPIC_SLUG}}/round-{N}.md`, capturing your full analysis from above:
+
+{{ROUND_ARTIFACT_FORMATS}}
 
 ### Revised Proposal Format
 

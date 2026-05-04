@@ -113,22 +113,7 @@ Once all teammates have responded, the Coordinator MUST:
 
 All output files go in `Sessions/{{TOPIC_SLUG}}/`. Create the directory if it doesn't exist.
 
-### After Every Round — Individual Response Files
-
-Before writing the round synthesis, write each teammate's response to a separate file:
-`Sessions/{{TOPIC_SLUG}}/round-{n}-{role-slug}.md`
-
-Use the teammate's kebab-case role slug. Each file uses YAML frontmatter + full verbatim response:
-
-```markdown
----
-round: {N}
-role: {role-slug}
-vote: {VOTE}
----
-
-{Full response as received — do not summarize or truncate}
-```
+<!-- ROUND_ARTIFACT_FORMATS_START -->
 
 ### After Every Round — Round Synthesis
 
@@ -161,6 +146,10 @@ Write `Sessions/{{TOPIC_SLUG}}/round-{n}.md`:
 **Outstanding objections**: ...
 **Revised proposal for next round** (if applicable): ...
 ```
+
+<!-- ROUND_ARTIFACT_FORMATS_END -->
+
+<!-- FINAL_OUTPUT_FORMATS_START -->
 
 ### On Consensus — `decision.md`
 
@@ -278,6 +267,8 @@ provide more context, break it into smaller topics, etc.]
 ## Coordinator Recommendation
 [Your recommendation for the human decision-maker, based on the strength of arguments]
 ```
+
+<!-- FINAL_OUTPUT_FORMATS_END -->
 
 ---
 

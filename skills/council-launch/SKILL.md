@@ -14,13 +14,17 @@ You **launch** the council. Verify preconditions, prepare the session folder, re
 - `council/config.md` exists.
 - `.claude/agents/coordinator.md` exists.
 - At least one `.claude/agents/<slug>.md` teammate file exists.
-- For each agent, `.claude/skills/<slug>/SKILL.md` exists **or** coordinator text embeds skill path and tells teammates to read it.
+- For each agent listed in `council/config.md`, `.claude/skills/council-<slug>/SKILL.md` **must** exist. No exceptions — all agents require a SKILL file.
 - Pattern file exists at `references/patterns/<pattern_id>.md` (read coordinator/teammate templates if you need to echo constraints).
 - If `council/config.md` has `devils_advocate: true` (or field is absent, which defaults to true): `.claude/agents/devils-advocate.md` must exist.
 
 If any file is missing → **stop** with explicit error listing every missing path and *"Re-run council-wizard to regenerate the missing files."*
 
-If Agent Teams tools (e.g. `TeamCreate`) are unavailable → **stop** with: *"Agent Teams is not available. Check that you are using a Claude Code plan or mode that includes Agent Teams, then try again."*
+If Agent Teams tools (e.g. `TeamCreate`) are unavailable → inform the user and continue in **subagent fallback mode**:
+
+> "Agent Teams is not available in this session. Falling back to subagent execution mode — the council will run using individual subagents instead of Agent Teams teammates. Deliberation logic, round persistence, and HITL checkpoints are identical; responses may arrive sequentially."
+
+Then proceed with the identity transition and launch. The coordinator's Step 1 contains instructions for subagent-mode spawning using the `Agent` tool.
 
 ---
 

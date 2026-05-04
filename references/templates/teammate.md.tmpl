@@ -17,9 +17,8 @@
        {{RESPONSE_FORMAT_EXAMPLE}}   — response format block with role name inserted
        {{CONSOLE_REPORTING}}         — console reporting section (empty if disabled)
 
-     === DOMAIN LAYER (from council/domain-context.md, filtered by persona's declared sections) ===
-       {{DOMAIN_SKILL_REF}}       — optional skill reference (empty if no matching skill)
-       {{DOMAIN_CONTEXT_BLOCK}}   — assembled domain context sections for this persona
+     === DOMAIN LAYER (from .claude/skills/council-<slug>/SKILL.md) ===
+       {{DOMAIN_SKILL_REF}}       — mandatory reference to the agent's domain skill file
 -->
 
 # {{ROLE_NAME}} (Teammate)
@@ -84,9 +83,9 @@ You MUST respond using the mandatory format:
 
 <!-- === DOMAIN LAYER === -->
 
-{{DOMAIN_SKILL_REF}}
+## Domain Knowledge
 
-{{DOMAIN_CONTEXT_BLOCK}}
+{{DOMAIN_SKILL_REF}}
 
 ---
 

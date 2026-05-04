@@ -65,6 +65,19 @@ Phase 1 deliberation is complete. The Devil's Advocate review has not run yet.
 
 ---
 
+## Runtime detection
+
+Before performing any identity transition (Branches B or D), check whether `TeamCreate` is available:
+
+- **Agent Teams available**: proceed as documented — call `TeamCreate` to create the council team and spawn teammates.
+- **Agent Teams not available**: inform the user:
+
+  > "Agent Teams is not available in this session. Resuming in subagent fallback mode — teammates will be spawned as individual subagents."
+
+  Then proceed with the identity transition using the `Agent` tool to spawn each teammate (same as in `council-launch` fallback mode). All session files and HITL checkpoints work identically.
+
+---
+
 ## Safety
 
 Never print secrets from configuration files. Inline HITL is the standard interaction mode for resumed sessions.

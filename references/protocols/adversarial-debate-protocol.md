@@ -132,22 +132,7 @@ Moderator synthesizes all rounds into a RECOMMENDATION. Before writing the final
 
 All output files go in `Sessions/{{TOPIC_SLUG}}/`. Create the directory if it doesn't exist.
 
-### After Every Round — Individual Response Files
-
-Before writing the round synthesis, write each participant's response to a separate file:
-`Sessions/{{TOPIC_SLUG}}/round-{n}-{role-slug}.md`
-
-Use the participant's kebab-case role slug. Each file uses YAML frontmatter + full verbatim response:
-
-```markdown
----
-round: {N}
-role: {role-slug}
-vote: {VOTE}
----
-
-{Full response as received — do not summarize or truncate}
-```
+<!-- ROUND_ARTIFACT_FORMATS_START -->
 
 ### After Every Round — Round Synthesis
 
@@ -181,6 +166,10 @@ Write `Sessions/{{TOPIC_SLUG}}/round-{n}.md`:
 **Evidence gaps identified**: ...
 **Focus for next round** (if applicable): ...
 ```
+
+<!-- ROUND_ARTIFACT_FORMATS_END -->
+
+<!-- FINAL_OUTPUT_FORMATS_START -->
 
 ### On Recommendation — `recommendation.md`
 
@@ -269,6 +258,8 @@ Write `Sessions/{{TOPIC_SLUG}}/escalation.md`:
 
 [What additional information, analysis, or authority would allow a decision to be made]
 ```
+
+<!-- FINAL_OUTPUT_FORMATS_END -->
 
 ---
 

@@ -129,8 +129,8 @@ When the wizard runs in a user project, it generates:
       coordinator.md                         lead agent (Agent Teams reads this)
       <role-slug>.md                         one per teammate
       devils-advocate.md                     system reviewer (generated if devils_advocate: true)
-    skills/                                  OPTIONAL per-agent domain skills
-      council-<role-slug>/SKILL.md           only when deep domain grounding needed
+    skills/                                  per-agent domain skills (one per agent, mandatory)
+      council-<role-slug>/SKILL.md           generated for every agent via skill-creator (or archetype fallback)
   council/
     config.md                                council metadata (YAML frontmatter)
     domain-context.md                        scenario/project knowledge
@@ -168,26 +168,28 @@ Agent File = Protocol Layer + Persona Layer + Domain Context Layer
 - Project-agnostic and reusable across councils
 - Library entries serve as seeds; custom personas generated to match scenarios
 
-**Domain Context Layer** (from `council/domain-context.md`, filtered per persona):
-- Project/scenario-specific knowledge
-- Labeled sections (overview, services, tech-stack, etc.)
-- Each persona declares which sections it needs via `domain-context-sections`
-- Business and tech section vocabularies coexist in the same file
+**Domain Layer** (from `.claude/skills/council-<slug>/SKILL.md`):
+- Project/scenario-specific knowledge for this agent's role
+- Generated via skill-creator (primary) or archetype baseline (fallback)
+- Lives exclusively in the SKILL file -- **not** embedded in the agent file
+- The agent file references the SKILL; domain knowledge is NOT inlined
 
 The templates (`references/templates/*.tmpl`) define the structural skeleton and injection points for each layer. The `.tmpl` extension is a convention marker -- the actual "rendering" is done by Claude reading the template and filling it in, not by a template engine.
 
-### 2.4 Runtime model (Agent Teams on Cowork & CLI)
+> **Separation of concerns**: the agent file (`.claude/agents/<slug>.md`) contains only behavior, rules, and context (layers 1-2 + skill reference). All domain knowledge lives in the corresponding SKILL file. This keeps agent files stable and reusable across scenarios while domain knowledge evolves per council.
 
-The plugin generates static files. Agent Teams is the only runtime:
+### 2.4 Runtime model (Agent Teams primary, subagent fallback)
 
-1. **Wizard** generates `.claude/agents/*.md`, `council/config.md`, `council/domain-context.md`, and optional skills
+The plugin generates static files. The runtime is **Agent Teams (primary)** with an **automatic subagent fallback**:
+
+1. **Wizard** generates `.claude/agents/*.md`, `council/config.md`, `council/domain-context.md`, and a SKILL.md per agent
 2. **`council-launch`** reads config and agent files, resolves runtime variables (`{{TOPIC}}`, `{{TOPIC_SLUG}}`), then **the main agent undergoes an identity transition**: it discards all prior context and becomes exclusively the Coordinator for the remainder of the session
-3. **Coordinator** (the main agent) calls `TeamCreate` directly to create the team and spawn teammates; runs the deliberative cycle (Phase 1)
+3. **Coordinator** (the main agent) attempts to call `TeamCreate` to create the team and spawn teammates. If `TeamCreate` is unavailable, the coordinator notifies the user and falls back to spawning each teammate as an individual subagent via the `Agent` tool.
 4. **Teammates** respond using the protocol format embedded in their agent files
 5. **Individual response files** (`round-N-<role-slug>.md`) and **round synthesis logs** (`round-N.md`) are written to `Sessions/<slug>/` after each round; the **final output draft** is written on consensus
-6. **Coordinator** runs the Devil's Advocate review (Phase 2) if enabled: adds the Devil's Advocate to the existing team, feeds it the Phase 1 output, consolidates challenges, writes a **new** `<output>-after-devils-review.md` file (original Phase 1 output is never modified), writes `devils-advocate-review.md`
+6. **Coordinator** runs the Devil's Advocate review (Phase 2) if enabled: adds the Devil's Advocate to the existing team (or spawns as subagent), feeds it the Phase 1 output, consolidates challenges, writes a **new** `<output>-after-devils-review.md` file (original Phase 1 output is never modified), writes `devils-advocate-review.md`
 
-The same generated artifacts work identically on Cowork and CLI. No runtime differences.
+The same generated artifacts work identically on Cowork and CLI, and in both Agent Teams and subagent execution modes. Subagent mode is sequential; Agent Teams mode may run teammates in parallel.
 
 ---
 
@@ -329,7 +331,7 @@ Seven pattern files in `references/patterns/`, each defining:
 | HITL checkpoints | Type A (round review), Type B (deadlock), Type C (plan approval) |
 | Output mapping | Which output template to use and how to fill it |
 
-The critical design: coordinator and teammate prompt templates use protocol variable placeholders (`{{VOTE_OPTIONS}}`, `{{CONSENSUS_RULE}}`, `{{REJECTION_RULE}}`, `{{OUTPUT_FORMATS}}`, `{{RESPONSE_FORMAT_EXAMPLE}}`, `{{BEHAVIORAL_RULES}}`) instead of embedding specific vote semantics. Protocol injection happens at generation time.
+The critical design: coordinator and teammate prompt templates use protocol variable placeholders (`{{VOTE_OPTIONS}}`, `{{CONSENSUS_RULE}}`, `{{REJECTION_RULE}}`, `{{ROUND_ARTIFACT_FORMATS}}`, `{{OUTPUT_FORMATS}}`, `{{RESPONSE_FORMAT_EXAMPLE}}`, `{{BEHAVIORAL_RULES}}`) instead of embedding specific vote semantics. Protocol injection happens at generation time.
 
 ### 4.2 Protocol files (interaction rules)
 
@@ -391,7 +393,8 @@ Three template files in `references/templates/`:
 | `{{VOTE_OPTIONS}}` | Protocol file | Generation time |
 | `{{CONSENSUS_RULE}}` | Protocol file | Generation time |
 | `{{REJECTION_RULE}}` | Protocol file | Generation time |
-| `{{OUTPUT_FORMATS}}` | Protocol file (round/decision/rejection/escalation templates) | Generation time |
+| `{{ROUND_ARTIFACT_FORMATS}}` | Protocol file (round synthesis template, between `ROUND_ARTIFACT_FORMATS` markers) | Generation time |
+| `{{OUTPUT_FORMATS}}` | Protocol file (final output templates — decision/rejection/escalation, between `FINAL_OUTPUT_FORMATS` markers) | Generation time |
 | `{{BEHAVIORAL_RULES}}` | Protocol file | Generation time |
 | `{{CONTEXT_REFERENCES}}` | Generated list of skill references per persona | Generation time |
 | `{{DEVILS_ADVOCATE_PHASE}}` | Full contents of `references/templates/devils-advocate-review.md` (if `devils_advocate: true`) or empty string (if `devils_advocate: false`) | Generation time |
@@ -410,8 +413,7 @@ Three template files in `references/templates/`:
 | `{{VOTE_OPTIONS}}` | Protocol file | Generation time |
 | `{{RESPONSE_FORMAT_EXAMPLE}}` | Generated from protocol + role name | Generation time |
 | `{{VOTE_GUIDELINES_TABLE}}` | Persona library (Vote Guidelines) | Generation time |
-| `{{DOMAIN_SKILL_REF}}` | Optional -- only if a matching skill exists | Generation time |
-| `{{DOMAIN_CONTEXT_BLOCK}}` | Assembled from domain context sections | Generation time |
+| `{{DOMAIN_SKILL_REF}}` | **Mandatory** -- path to `.claude/skills/council-<slug>/SKILL.md` for this agent | Generation time |
 | `{{QUALITY_CHECKLIST}}` | Persona library (Quality Checklist) | Generation time |
 | `{{CONSOLE_REPORTING}}` | Protocol (if enabled) | Generation time |
 
@@ -424,7 +426,7 @@ Three template files in `references/templates/`:
 
 ## 5. Wizard Flow (5 phases)
 
-The 8-phase wizard (System A) and 6-phase wizard (System B) merge into a streamlined 5-phase conversational flow. Phases are logical steps, not mandatory sequential gates -- Claude can collapse multiple phases in a single response when the user's intent is clear enough.
+The 8-phase wizard (System A) and 6-phase wizard (System B) merge into a streamlined 5-phase conversational flow. Phases are **mandatory sequential steps** -- every invocation must go through all 5 phases in order. Phases may be concise when the user's intent is clear, but none may be collapsed or skipped.
 
 ### Phase 1 -- Scenario Intake and Context Discovery
 
@@ -466,7 +468,7 @@ The 8-phase wizard (System A) and 6-phase wizard (System B) merge into a streaml
 
 4. **Reuse check**: scan `.claude/agents/` for existing agent files from prior councils. Offer to reuse with modifications.
 
-5. For each agent: ask if they need a domain-specific skill (only if relevant skills exist or the persona has a baseline skill template).
+5. Every agent will have a corresponding SKILL.md generated in Phase 5 — no per-agent decision is needed here.
 
 ### Phase 4 -- HITL Confirmation
 
@@ -484,39 +486,16 @@ Generate all artifacts:
 - `council/domain-context.md` (if not already present from Phase 1)
 - `.claude/agents/coordinator.md` (assembled from pattern template + protocol + teammates table; `{{DEVILS_ADVOCATE_PHASE}}` filled from `references/templates/devils-advocate-review.md` if `devils_advocate: true`, or empty if false)
 - `.claude/agents/devils-advocate.md` (if `devils_advocate: true`; assembled from `teammate.md.tmpl` using the `devils-advocate` persona and same protocol as council; NOT listed in `{{TEAMMATES_TABLE}}`)
-- `.claude/agents/<slug>.md` per teammate (assembled from three-layer composition: protocol + persona + domain context)
+- `.claude/agents/<slug>.md` per teammate (assembled from three-layer composition: protocol + persona + domain skill reference)
+- `.claude/skills/council-<slug>/SKILL.md` per agent (**mandatory** -- generated via skill-creator, or archetype/minimal fallback)
 - `Docs/INDEX.md` (if `Docs/` has content)
 - `Sessions/` directory
-- Optional: `.claude/skills/council-<slug>/SKILL.md` per agent that declared a domain skill
 
 Summary: *"Council scaffolded -- N files created across M folders."* List all generated files.
 
 Launch offer: *"Run the council now, or run later via council-launch?"*
 - If now: hand off to `council-launch`
 - If later: point to `council-launch` and `council-resume` for future use
-
-### Collapsed flow example
-
-For a clear request like *"Make me a council to analyze this public tender so I can write a proposal"*, Claude can collapse Phases 1-3 into a single response:
-
-> I'll set up a **builder-validator** council for your tender analysis. The pattern fits because you need an artifact (proposal draft) validated for compliance.
->
-> **Proposed team (4 agents):**
->
-> | Agent | Focus | Source |
-> |-------|-------|--------|
-> | Legal Advisor | Contract terms, regulatory compliance | Library |
-> | Financial Controller | Cost structure, pricing, margin analysis | Library |
-> | Market Analyst | Competitive positioning, market context | Library |
-> | Compliance Officer | Tender requirements checklist, formal compliance | Library |
->
-> **Pattern**: builder-validator (Legal Advisor + Financial Controller draft; Market Analyst + Compliance Officer validate)
-> **Protocol**: deliberative-voting (default)
-> **HITL**: inline
->
-> Want me to adjust the team, or should I generate the council?
-
-One confirmation and the wizard jumps to Phase 5.
 
 ---
 
@@ -528,13 +507,14 @@ Writes all artifacts. No separate skill invocation needed. The `council-scaffold
 
 ### 6.2 Launch (`council-launch` skill)
 
-- Verifies preconditions: `council/config.md`, `.claude/agents/coordinator.md`, teammate files, `TeamCreate` availability.
+- Verifies preconditions: `council/config.md`, `.claude/agents/coordinator.md`, teammate files, a SKILL.md for every agent listed in config.
 - Creates `Sessions/<topic-slug>/` with `config-snapshot.md` (frozen config copy).
 - Resolves output filename and template path from pattern `output_template` and `output_style`.
 - Reads `.claude/agents/coordinator.md` and substitutes the two runtime variables: `{{TOPIC}}` and `{{TOPIC_SLUG}}`.
 - Prepends a **launch preamble** (session path, output file, post-DA output filename convention, output template, output style implications) to the resolved coordinator instructions.
+- **Runtime detection**: if `TeamCreate` is available, proceed normally. If unavailable, inform the user and activate subagent fallback mode.
 - **Identity transition**: the main agent discards all prior context (launch checks, wizard history) and becomes exclusively the Coordinator for the remainder of the session. There is no "return to launch."
-- As the Coordinator (main agent), calls `TeamCreate` with `council-<topic-slug>` to create the team and spawn teammates from Step 1 onwards.
+- As the Coordinator (main agent): in Agent Teams mode, calls `TeamCreate` to create the team and spawn teammates; in subagent fallback mode, uses the `Agent` tool to spawn each teammate individually.
 
 ### 6.3 Run (Agent Teams native)
 
@@ -743,10 +723,11 @@ The category field (`business` vs `tech`) and the distinct domain keywords disam
 | Failure mode | Handling |
 |---|---|
 | `Docs/` missing or empty | Warn, allow user to proceed with scenario-only context |
-| Skill-creator invocation fails | Retry with a more explicit brief; on second failure, fall back to copying the nearest archetype persona with a note "manual refinement recommended" |
+| Skill-creator invocation fails | Retry once with a more explicit brief; on second failure, fall back to archetype baseline or minimal SKILL.md. Inform the user. |
+| Skill-creator not available | Inform the user explicitly: *"skill-creator plugin not available — using archetype templates."* Proceed with simple skill creation (archetype baseline or minimal SKILL.md). |
 | Required scaffold file missing at launch | Stop with an explicit error referencing the wizard |
 | Session crash mid-round (Claude Code closed) | Partial round file may remain; `council-resume` detects incomplete rounds and offers discard or resume |
-| Agent Teams tool unavailability (e.g., `TeamCreate`) | Surface a clear error: wrong Claude Code mode or plan; suggest the user enable Agent Teams |
+| Agent Teams tool unavailability (e.g., `TeamCreate`) | Inform the user; coordinator falls back to subagent execution mode using the `Agent` tool. Deliberation proceeds identically; responses are sequential. |
 
 ---
 
